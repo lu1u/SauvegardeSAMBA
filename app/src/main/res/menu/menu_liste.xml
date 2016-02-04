@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="lpi.sauvegardesamba.MainActivity">
+    <item
+        android:id="@+id/action_modifier"
+        android:orderInCategory="100"
+        android:title="Modifier"/>
+
+    <item
+        android:id="@+id/action_supprimer"
+        android:orderInCategory="200"
+        android:title="Supprimer"/>
+
+</menu>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="accent">#FF5722</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
+
+    <color name="bleuclair">#33B5E5</color>
+    <color name="violetclair">#AA66CC</color>
+    <color name="vertclair">#99CC00</color>
+    <color name="jauneclair">#FFBB33</color>
+    <color name="rougeclair">#FF4444</color>
+
+    <color name="bleufonce">#0099CC</color>
+    <color name="violetfonce">#9933CC</color>
+    <color name="vertfonce">#669900</color>
+    <color name="jaunefonce">#FF8800</color>
+    <color name="rougefonce">#CC0000</color>
+
+    <color name="blanc">#FFFFFF</color>
+</resources>

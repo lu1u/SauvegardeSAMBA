@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="lpi.sauvegardesamba.ParametresActivity"
+    tools:showIn="@layout/activity_parametres">
+
+    <ScrollView
+        android:id="@+id/scrollView3"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Répertoires:"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sauvegarde"
+                        android:minWidth="@dimen/largeur_label_preferences"
+
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        />
+
+                    <EditText
+                        android:id="@+id/editTextRepertoireSauvegarde"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="@dimen/largeur_label_preferences"
+                        android:text="Contacts"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+                    <EditText
+                        android:id="@+id/editTextContacts"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="@dimen/largeur_label_preferences"
+                        android:text="Appels"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+                    <EditText
+                        android:id="@+id/editTextAppels"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="@dimen/largeur_label_preferences"
+                        android:text="Messages"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+                    <EditText
+                        android:id="@+id/editTextMessages"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="@dimen/largeur_label_preferences"
+                        android:text="Photos"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+                    <EditText
+                        android:id="@+id/editTextPhotos"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="@dimen/largeur_label_preferences"
+                        android:text="Vidéos"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+                    <EditText
+                        android:id="@+id/editTextVideos"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <Space
+                android:layout_width="20px"
+                android:layout_height="20px"
+                />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Regroupement des fichiers:"
+                    android:id="@+id/textView4"/>
+                <CheckBox
+                    android:id="@+id/checkBoxRegrouperAppels"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Regrouper les appels par contact"
+                    android:singleLine="false"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxRegrouperMessages"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Regrouper les messages par discussion"
+                    android:singleLine="false"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxRegrouperPhotos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Regrouper les photos par catégorie"
+                    android:singleLine="false"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxRegrouperVideos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Regrouper les vidéos par catégorie"
+                    android:singleLine="false"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

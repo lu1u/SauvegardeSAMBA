@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="lpi.sauvegardesamba.AProposActivity"
+    tools:showIn="@layout/activity_apropos">
+
+
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context="lpi.sauvegardesamba.AboutActivity">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Sauvegarde SAMBA 2.0"
+            android:id="@+id/textView15"
+            android:layout_gravity="center_horizontal|top"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Sauvegarde vos contacts, vos appels, vos messages, vos photos et vos vidéos sur un répertoire partagé de votre ordinateur sans avoir à passer par Internet.\nApplication développée spécialement pour Véronique, avec l&apos;aide de Perrine pour l&apos;icône de l&apos;application\n\nIcônes tirées de\nhttps://materialdesignicons.com/\nNombreux détails techniques réglés grâce à\nhttp://stackoverflow.com\nCommunication réseau par JCIFS (https://jcifs.samba.org/)"
+            android:id="@+id/textView16"
+            android:layout_gravity="center_vertical"
+            android:hyphenationFrequency="normal"
+            android:elegantTextHeight="true"
+            android:breakStrategy="balanced"
+            style="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:padding="@dimen/text_margin"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView4"
+            android:layout_gravity="left|top"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="fitXY"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="(c) Lucien Pilloni 2014"
+            android:id="@+id/textView17"
+            android:layout_gravity="center_horizontal|bottom"/>
+    </FrameLayout>
