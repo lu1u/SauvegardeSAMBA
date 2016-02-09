@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import lpi.sauvegardesamba.sauvegarde.SauvegardeReturnCode;
 import lpi.sauvegardesamba.utils.Report;
 
 /**
+ * Objet representant unu photo stockee sur le telephone
  * Created by lucien on 30/01/2016.
  */
 public class Photo extends SavedObject
@@ -29,13 +31,6 @@ static private int _colonneDateAdded;
 static private int _colonneAbsolutePath;
 static private int _colonneBucketDisplayName;
 
-public String _absolutePath;
-public String _displayName;
-public String _description;
-public long _dateTaken;
-public long _dateAdded;
-public long _dateModified;
-public String _bucketName;
 
 private static String[] COLONNES =
 		{
@@ -48,6 +43,13 @@ private static String[] COLONNES =
 				MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME
 		};
 
+public String _absolutePath;
+public String _displayName;
+public String _description;
+public long _dateTaken;
+public long _dateAdded;
+public long _dateModified;
+public String _bucketName;
 public Photo(Cursor cursor, Context context)
 {
 	_absolutePath = cursor.getString(_colonneAbsolutePath);
@@ -68,18 +70,24 @@ public static Cursor getList(Context context)
 			null,
 			null);
 
-	_colonneAbsolutePath = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
-	_colonneDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
-	_colonneDescription = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DESCRIPTION);
-	_colonneDateModified = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_MODIFIED);
-	_colonneDateTaken = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN);
-	_colonneDateAdded = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_ADDED);
-	_colonneBucketDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
+	try
+	{
+		_colonneAbsolutePath = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
+		_colonneDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME);
+		_colonneDescription = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DESCRIPTION);
+		_colonneDateModified = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_MODIFIED);
+		_colonneDateTaken = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN);
+		_colonneDateAdded = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_ADDED);
+		_colonneBucketDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
+	} catch (IllegalArgumentException e)
+	{
+		return null;
+	}
 	return cursor;
 }
 
 /***
- * Calcule un nom de fichier pour enregistrer ce contact
+ * Calcule un nom de fichier pour enregistrer ce ic_contact
  *
  * @return
  */
@@ -97,7 +105,8 @@ public String getFileName()
  * @param context
  * @throws IOException
  */
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context context, NtlmPasswordAuthentication authentification) throws IOException
+@Override
+public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
 	String fileName = getFileName()  ;
 	SmbFile smbDest = new SmbFile(Combine(smbRoot.getCanonicalPath(),fileName), authentification);
@@ -134,8 +143,8 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context c
 
 	} catch (Exception e)
 	{
-		report.Log("Erreur lors de la sauvegarde de la photo " + _displayName);
-		report.Log(e);
+		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde de la photo " + _displayName);
+		Report.Log(Report.NIVEAU.ERROR, e);
 		return SauvegardeReturnCode.ERREUR_COPIE ;
 	} finally
 	{
@@ -154,6 +163,7 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context c
 
 
 @Override
+@NonNull
 public String Nom(Context context)
 {
 	return _displayName;

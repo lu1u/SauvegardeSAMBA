@@ -2,163 +2,112 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="@dimen/hauteur_liste_item"
-              android:orientation="horizontal"
-              android:minHeight="@dimen/hauteur_liste_item">
+              android:background="@drawable/bk_element_liste"
+              android:minHeight="@dimen/hauteur_liste_item"
+              android:orientation="vertical"
+              android:padding="2dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Go!"
-        android:id="@+id/textViewGo"
-        android:background="@drawable/roundbutton_bg_normal"
-        android:textColor="#ffffff"
-        android:minHeight="@dimen/taille_bouton_liste_profil"
-        android:maxWidth="@dimen/taille_bouton_liste_profil"
-        android:height="@dimen/taille_bouton_liste_profil"
-        android:width="@dimen/taille_bouton_liste_profil"
-        android:layout_gravity="center"
-        android:foregroundGravity="center"
-        android:gravity="center"
-        android:layout_margin="@dimen/marge_bouton"
-        android:minWidth="@dimen/taille_bouton_liste_profil"/>
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        >
 
         <TextView
+            android:id="@+id/textViewNom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Large Text"
-            android:id="@+id/textViewNom"/>
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         <TextView
+            android:id="@+id/textViewPartage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Medium Text"
-            android:id="@+id/textViewPartage"/>
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <TextView
+            android:id="@+id/textViewDerniereSauvegarde"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Small Text"
-            android:id="@+id/textViewDerniereSauvegarde"/>
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="@dimen/taille_image_liste_profils"
-                android:layout_height="@dimen/taille_image_liste_profils"
                 android:id="@+id/imageViewWifi"
-                android:src="@drawable/wifi"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:maxWidth="@dimen/taille_image_liste_profils"
-                android:maxHeight="@dimen/taille_image_liste_profils"
-                android:layout_weight="0.25"/>
-
-            <ImageView
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
-                android:id="@+id/imageViewPlannifiee"
-                android:src="@drawable/clock"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
-
-            <ImageView
-                android:layout_width="@dimen/taille_image_liste_profils"
-                android:layout_height="@dimen/taille_image_liste_profils"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
-            <ImageView
-                android:layout_width="@dimen/taille_image_liste_profils"
-                android:layout_height="@dimen/taille_image_liste_profils"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
-            <ImageView
-                android:layout_width="@dimen/taille_image_liste_profils"
-                android:layout_height="@dimen/taille_image_liste_profils"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:layout_width="@dimen/taille_image_liste_profils"
-                android:layout_height="@dimen/taille_image_liste_profils"
-                android:id="@+id/imageContact"
-                android:src="@drawable/contact"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:maxWidth="@dimen/taille_image_liste_profils"
-                android:maxHeight="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
-                android:tint="@color/primary"/>
+                android:maxHeight="@dimen/taille_image_liste_profils"
+                android:maxWidth="@dimen/taille_image_liste_profils"
+                android:minHeight="@dimen/taille_image_liste_profils"
+                android:minWidth="@dimen/taille_image_liste_profils"
+                android:src="@drawable/ic_wifi"
+                android:tint="?attr/tintIcones"/>
 
             <ImageView
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
+                android:layout_weight="0.25"
+                android:minHeight="@dimen/taille_image_liste_profils"
+                android:minWidth="@dimen/taille_image_liste_profils"
+                android:tint="?attr/tintIcones"/>
+
+
+            <ImageView
+                android:id="@+id/imageContact"
+                android:layout_width="@dimen/taille_image_liste_profils"
+                android:layout_height="@dimen/taille_image_liste_profils"
+                android:layout_weight="0.25"
+                android:maxHeight="@dimen/taille_image_liste_profils"
+                android:maxWidth="@dimen/taille_image_liste_profils"
+                android:minHeight="@dimen/taille_image_liste_profils"
+                android:minWidth="@dimen/taille_image_liste_profils"
+                android:src="@drawable/ic_contact"
+                android:tint="?attr/tintIcones"/>
+
+            <ImageView
                 android:id="@+id/imageAppels"
-                android:src="@drawable/phone"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
-
-            <ImageView
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
+                android:layout_weight="0.25"
+                android:minHeight="@dimen/taille_image_liste_profils"
+                android:minWidth="@dimen/taille_image_liste_profils"
+                android:src="@drawable/ic_phone"
+                android:tint="?attr/tintIcones"/>
+
+            <ImageView
                 android:id="@+id/imageMessages"
-                android:src="@drawable/message"
-                android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
-
-            <ImageView
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
+                android:layout_weight="0.25"
+                android:minHeight="@dimen/taille_image_liste_profils"
+                android:minWidth="@dimen/taille_image_liste_profils"
+                android:src="@drawable/ic_message"
+                android:tint="?attr/tintIcones"/>
+
+            <ImageView
                 android:id="@+id/imagePhotos"
-                android:src="@drawable/image"
+                android:layout_width="@dimen/taille_image_liste_profils"
+                android:layout_height="@dimen/taille_image_liste_profils"
+                android:layout_weight="0.25"
                 android:minHeight="@dimen/taille_image_liste_profils"
                 android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
+                android:src="@drawable/ic_image"
+                android:tint="?attr/tintIcones"/>
 
 
             <ImageView
+                android:id="@+id/imageVideos"
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
-                android:id="@+id/imageVideos"
-                android:src="@drawable/video"
+                android:layout_weight="0.25"
                 android:minHeight="@dimen/taille_image_liste_profils"
                 android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="@color/primary"
-                android:layout_weight="0.25"/>
+                android:src="@drawable/ic_video"
+                android:tint="?attr/tintIcones"/>
         </LinearLayout>
 
     </LinearLayout>
-
-</LinearLayout>

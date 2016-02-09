@@ -5,9 +5,9 @@ import android.database.Cursor;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -17,6 +17,7 @@ import lpi.sauvegardesamba.sauvegarde.SauvegardeReturnCode;
 import lpi.sauvegardesamba.utils.Report;
 
 /**
+ * Objet representant un contact stocke sur le telephone
  * Created by lucien on 29/01/2016.
  */
 public class Contact extends SavedObject
@@ -30,29 +31,16 @@ private static final String[] _colonneS_CONTACT = {
 
 private static final String[] COLONNES_PHONENUMBER = {ContactsContract.CommonDataKinds.Phone.NUMBER};
 private static final String[] COLONNES_EMAIL = {ContactsContract.CommonDataKinds.Email.DATA};
-public String _nom;
-public long _lastContacted;
-public long _timesContacted;
-
-public String[] _numeros;
-public String[] _eMails;
 static int _colonneID;
 static int _colonneDisplayName;
 static int _colonneHasPhoneNumber;
 static int _colonneTimesUpdated;
 static int _colonneLastContacted;
-
-public static Cursor getList(Context context)
-{
-	Cursor cursor = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, _colonneS_CONTACT, null, null, null);
-	_colonneID = cursor.getColumnIndex(BaseColumns._ID);
-	_colonneDisplayName = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-	_colonneHasPhoneNumber = cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
-	_colonneTimesUpdated = cursor.getColumnIndex(ContactsContract.Contacts.TIMES_CONTACTED);
-	_colonneLastContacted = cursor.getColumnIndex(ContactsContract.Contacts.LAST_TIME_CONTACTED);
-
-	return cursor;
-}
+public String _nom;
+public long _lastContacted;
+public long _timesContacted;
+public String[] _numeros;
+public String[] _eMails;
 
 public Contact(Cursor cursor, Context context)
 {
@@ -113,6 +101,25 @@ public Contact(Cursor cursor, Context context)
 	}
 }
 
+@Nullable
+public static Cursor getList(Context context)
+{
+	Cursor cursor = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, _colonneS_CONTACT, null, null, null);
+	try
+	{
+		_colonneID = cursor.getColumnIndex(BaseColumns._ID);
+		_colonneDisplayName = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+		_colonneHasPhoneNumber = cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
+		_colonneTimesUpdated = cursor.getColumnIndex(ContactsContract.Contacts.TIMES_CONTACTED);
+		_colonneLastContacted = cursor.getColumnIndex(ContactsContract.Contacts.LAST_TIME_CONTACTED);
+	} catch (Exception e)
+	{
+		return null;
+	}
+
+	return cursor;
+}
+
 @Override
 public String Nom(Context context)
 {
@@ -127,9 +134,7 @@ public String getCategorie()
 }
 
 /***
- * Calcule un nom de fichier pour enregistrer ce contact
- *
- * @return
+ * Calcule un nom de fichier pour enregistrer ce ic_contact
  */
 public String getFileName(Context context)
 {
@@ -137,14 +142,11 @@ public String getFileName(Context context)
 }
 
 /**
- * Sauvegarde le contact dans le fichier samba donne en parametre
+ * Sauvegarde le ic_contact dans le fichier samba donne en parametre
  *
- * @param sops
- * @param report
- * @param context
  * @throws IOException
  */
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context context, NtlmPasswordAuthentication authentification) throws IOException
+public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
 	// Path de cet appel
 	String path = smbRoot.getCanonicalPath();
@@ -184,12 +186,13 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context c
 		}
 	} catch (IOException e)
 	{
-		report.Log("Erreur lors de la sauvegarde du contact " + _nom);
-		report.Log(e);
+		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde du ic_contact " + _nom);
+		Report.Log(Report.NIVEAU.ERROR, e);
 		return SauvegardeReturnCode.ERREUR_CREATION_FICHIER;
 	} finally
 	{
-		sops.close();
+		if (sops != null)
+			sops.close();
 	}
 
 	return SauvegardeReturnCode.OK;

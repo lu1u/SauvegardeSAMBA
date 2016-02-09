@@ -1,24 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="lpi.sauvegardesamba.ParametresActivity"
     tools:showIn="@layout/activity_parametres">
 
     <ScrollView
         android:id="@+id/scrollView3"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent">
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thème:"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <Spinner
+                android:id="@+id/spinnerTheme"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/spinner_theme_prompt"
+                android:spinnerMode="dialog"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -40,8 +57,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sauvegarde"
                         android:minWidth="@dimen/largeur_label_preferences"
+                        android:text="Sauvegarde"
 
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         />
@@ -50,7 +67,9 @@
                         android:id="@+id/editTextRepertoireSauvegarde"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:singleLine="true"/>
+                        android:inputType="text"
+                        android:singleLine="true"
+                        />
 
                 </LinearLayout>
 
@@ -158,43 +177,51 @@
                 />
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/textView4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="Regroupement des fichiers:"
-                    android:id="@+id/textView4"/>
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
                 <CheckBox
                     android:id="@+id/checkBoxRegrouperAppels"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Regrouper les appels par contact"
-                    android:singleLine="false"/>
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:singleLine="false"
+                    android:text="Regrouper les appels par contact"/>
 
                 <CheckBox
                     android:id="@+id/checkBoxRegrouperMessages"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Regrouper les messages par discussion"
-                    android:singleLine="false"/>
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:singleLine="false"
+                    android:text="Regrouper les messages par discussion"/>
 
                 <CheckBox
                     android:id="@+id/checkBoxRegrouperPhotos"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Regrouper les photos par catégorie"
-                    android:singleLine="false"/>
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:singleLine="false"
+                    android:text="Regrouper les photos par catégorie"/>
 
                 <CheckBox
                     android:id="@+id/checkBoxRegrouperVideos"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Regrouper les vidéos par catégorie"
-                    android:singleLine="false"/>
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:singleLine="false"
+                    android:text="Regrouper les vidéos par catégorie"/>
 
             </LinearLayout>
 

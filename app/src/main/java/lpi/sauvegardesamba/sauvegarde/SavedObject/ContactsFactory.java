@@ -2,12 +2,14 @@ package lpi.sauvegardesamba.sauvegarde.SavedObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.utils.Preferences;
 
 /**
- * Created by lucien on 04/02/2016.
+ * Factory pour les Contacts
  */
 public class ContactsFactory extends SavedObjectFactory
 {
@@ -24,6 +26,7 @@ protected boolean regrouperObjets(Context context)
 }
 
 @Override
+@NonNull
 protected String getMessage(SavedObjectFactory.MESSAGES message, Object... arguments)
 {
 	switch( message )
@@ -37,7 +40,7 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 			return "Contact %d/%d" ;
 
 		case ERREUR_LORS_DE_LA_SAUVEGARDE:
-			return String.format( "Erreur lors de la sauvegarde contact dans le répertoire %s", arguments) ;
+			return String.format("Erreur lors de la sauvegarde ic_contact dans le répertoire %s", arguments);
 		case INACTIF:
 			return "Sauvegarde des contacts non active" ;
 
@@ -47,6 +50,7 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 }
 
 @Override
+@NonNull
 protected String getRepertoireObjets(Context context)
 {
 	Preferences pref = new Preferences(context);
@@ -54,12 +58,14 @@ protected String getRepertoireObjets(Context context)
 }
 
 @Override
+@Nullable
 protected Cursor getList(Context context)
 {
 	return Contact.getList(context);
 }
 
 @Override
+@NonNull
 protected SavedObject creerObjet(Cursor cursor, Context context)
 {
 	return new Contact(cursor, context );

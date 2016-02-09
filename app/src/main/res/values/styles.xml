@@ -17,4 +17,54 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+
+    <style name="MyTabLayoutTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Theme1" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="tintIcones">@color/primary</item>
+        <item name="couleurHint">@color/couleurHint</item>
+    </style>
+
+    <style name="Theme2" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/primary2</item>
+        <item name="colorPrimaryDark">@color/primary_dark2</item>
+        <item name="colorAccent">@color/accent2</item>
+        <item name="tintIcones">@color/primary2</item>
+        <item name="couleurHint">@color/couleurHint2</item>
+    </style>
+
+    <style name="Theme3" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/primary3</item>
+        <item name="colorPrimaryDark">@color/primary_dark3</item>
+        <item name="colorAccent">@color/accent3</item>
+        <item name="tintIcones">@color/primary3</item>
+        <item name="couleurHint">@color/couleurHint2</item>
+    </style>
+
+    <style name="Theme4" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/primary4</item>
+        <item name="colorPrimaryDark">@color/primary_dark4</item>
+        <item name="colorAccent">@color/accent4</item>
+        <item name="tintIcones">@color/primary4</item>
+        <item name="couleurHint">@color/couleurHint4</item>
+    </style>
+
+    <style name="Theme5" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/primary5</item>
+        <item name="colorPrimaryDark">@color/primary_dark5</item>
+        <item name="colorAccent">@color/accent5</item>
+        <item name="tintIcones">@color/primary5</item>
+        <item name="couleurHint">@color/couleurHint5</item>
+    </style>
+
+    <style name="MonTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="MonTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
 </resources>

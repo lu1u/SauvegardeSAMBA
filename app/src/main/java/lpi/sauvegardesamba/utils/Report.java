@@ -1,117 +1,116 @@
 /**
- * 
+ *
  */
 package lpi.sauvegardesamba.utils;
 
 import android.content.Context;
 
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
+
+import lpi.sauvegardesamba.database.HistoriqueDatabase;
+import lpi.sauvegardesamba.database.TracesDatabase;
 
 /**
  * @author lucien
- *
  */
 @SuppressWarnings("nls")
 public class Report
 {
-	public static final String REPORT_FILE = "report.txt" ;
-	public String _message;
-	public String SauvegardeContacts = "";
-	public String SauvegardeSMS = "";
-	public String SauvegardeMMS = "";
-	public String SauvegardePhotos = "";
-	public String SauvegardeVideos = "";
-	public String SauvegardeCallLog = "";
-	public boolean _erreurDetectee = false ;
-	
-	private List<String> log = new ArrayList<String>();
+static HistoriqueDatabase _historiqueDatabase;
+static TracesDatabase _tracesDatabase;
+static private Context _context;
 
-	@Override
-	public String toString()
+private Report(Context context)
+{
+
+}
+
+static public void Init(Context context)
+{
+	_context = context;
+
+	if (_historiqueDatabase == null)
+		_historiqueDatabase = HistoriqueDatabase.getInstance(context);
+
+	if (_tracesDatabase == null)
+		_tracesDatabase = TracesDatabase.getInstance(context);
+}
+
+public static void Log(NIVEAU niv, String message)
+{
+	Calendar c = Calendar.getInstance();
+
+	_tracesDatabase.Ajoute((int) (c.getTimeInMillis() / 1000L), toInt(niv), message);
+}
+
+public static int toInt(NIVEAU n)
+{
+	switch (n)
 	{
-		if (_message == null)
-			return SauvegardeContacts + "\n" + SauvegardeCallLog + "\n" + SauvegardeSMS + "\n" + SauvegardeMMS + "\n"
-					+ SauvegardePhotos + "\n" + SauvegardeVideos;
-		else
-			return _message;
-
+		case DEBUG:
+			return 0;
+		case WARNING:
+			return 1;
+		case ERROR:
+			return 2;
+		default:
+			return 0;
 	}
+}
 
-	public void Log(String s)
+public static NIVEAU toNIVEAU(int n)
+{
+	switch (n)
 	{
-		log.add(getLocalizedDate() + ":" + s);
+		case 0:
+			return NIVEAU.DEBUG;
+		case 1:
+			return NIVEAU.WARNING;
+		case 2:
+			return NIVEAU.ERROR;
+		default:
+			return NIVEAU.DEBUG;
 	}
+}
 
-	@SuppressWarnings("boxing")
-	public static String getLocalizedDate(long date)
-	{
-		Calendar c = Calendar.getInstance();
-		c.setTimeInMillis(date);
+@SuppressWarnings("boxing")
+public static String getLocalizedDate(long date)
+{
+	Calendar c = Calendar.getInstance();
+	c.setTimeInMillis(date);
 
-		return String.format(Locale.getDefault(), "%02d/%02d/%02d %02d:%02d:%02d", 
-				c.get(Calendar.DAY_OF_MONTH),
-				(c.get(Calendar.MONTH) + 1), c.get(Calendar.YEAR), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE),
-				c.get(Calendar.SECOND)); // + ":" + c.get(Calendar.MILLISECOND) ;
-	}
+	return String.format(Locale.getDefault(), "%02d/%02d/%02d %02d:%02d:%02d",
+			c.get(Calendar.DAY_OF_MONTH),
+			(c.get(Calendar.MONTH) + 1), c.get(Calendar.YEAR), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE),
+			c.get(Calendar.SECOND)); // + ":" + c.get(Calendar.MILLISECOND) ;
+}
 
-	public static String getLocalizedDate()
-	{
-		return getLocalizedDate(System.currentTimeMillis());
-	}
+public static String getLocalizedDate()
+{
+	return getLocalizedDate(System.currentTimeMillis());
+}
 
-	public void Log(Exception e)
-	{
-		_message = "Erreur lors de l'envoi d\'un mail, vérifiez les paramètres"; //$NON-NLS-1$
+static public void Log(NIVEAU niv, Exception e)
+{
+	Log(niv, e.getLocalizedMessage());
+	for (int i = 0; i < e.getStackTrace().length && i < 5; i++)
+		Log(niv, e.getStackTrace()[i].getClassName() + '/' + e.getStackTrace()[i].getMethodName() + ':' + e.getStackTrace()[i].getLineNumber());
 
-		Log(e.getLocalizedMessage());
-		for (StackTraceElement s : e.getStackTrace())
-			Log(s.getClassName() + '/' + s.getMethodName() + ':' + s.getLineNumber());
+}
 
-	}
+static public void historique(String message)
+{
+	Calendar c = Calendar.getInstance();
+	_historiqueDatabase.Ajoute((int) (c.getTimeInMillis() / 1000L), message);
+}
 
-	public void Save(Context context)
-	{
-		File dir = new File(context.getCacheDir(), REPORT_FILE);
-		try
-		{
-			FileOutputStream fileout = new FileOutputStream(dir.getPath());
-			OutputStreamWriter outputWriter=new OutputStreamWriter(fileout);
-			for (String s : log)
-			{
-			outputWriter.write(s + "\n");
-			}
-			outputWriter.close();
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
+public enum NIVEAU
+{
+	DEBUG,
+	WARNING,
+	ERROR
+}
 
-	public String Load(Context ctx)
-	{
-		StringBuffer sb = new StringBuffer() ;
-		File dir = new File(ctx.getCacheDir(), REPORT_FILE);
-		try
-		{
-			Reader r = new InputStreamReader(new FileInputStream(dir), "UTF-8");
-			int c ;
-			while ((c = r.read()) != -1)
-				sb.append((char) c);
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
 
-		return sb.toString();
-	}
 }

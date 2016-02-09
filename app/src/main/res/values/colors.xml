@@ -7,7 +7,8 @@
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
     <color name="icons">#FFFFFF</color>
-    <color name="divider">#B6B6B6</color>
+    <color name="divider">#BFBFBF</color>
+    <color name="couleurHint">#FF0044</color>
 
     <color name="bleuclair">#33B5E5</color>
     <color name="violetclair">#AA66CC</color>
@@ -22,4 +23,47 @@
     <color name="rougefonce">#CC0000</color>
 
     <color name="blanc">#FFFFFF</color>
+
+
+    <color name="primary2">#4CAF50</color>
+    <color name="primary_dark2">#388E3C</color>
+    <color name="primary_light2">#C8E6C9</color>
+    <color name="accent2">#CDDC39</color>
+    <color name="primary_text2">#212121</color>
+    <color name="secondary_text2">#727272</color>
+    <color name="icons2">#FFFFFF</color>
+    <color name="divider2">#B6B6B6</color>
+    <color name="couleurHint2">@color/primary_light2</color>
+
+    <color name="primary3">#9C27B0</color>
+    <color name="primary_dark3">#7B1FA2</color>
+    <color name="primary_light3">#E1BEE7</color>
+    <color name="accent3">#7C4DFF</color>
+    <color name="primary_text3">#212121</color>
+    <color name="secondary_text3">#727272</color>
+    <color name="icons3">#FFFFFF</color>
+    <color name="divider3">#B6B6B6</color>
+    <color name="couleurHint3">@color/primary_light3</color>
+
+    <color name="primary4">#795548</color>
+    <color name="primary_dark4">#5D4037</color>
+    <color name="primary_light4">#D7CCC8</color>
+    <color name="accent4">#9E9E9E</color>
+    <color name="primary_text4">#212121</color>
+    <color name="secondary_text4">#727272</color>
+    <color name="icons4">#FFFFFF</color>
+    <color name="divider4">#B6B6B6</color>
+    <color name="couleurHint4">@color/primary_light4</color>
+
+
+    <color name="primary5">#607D8B</color>
+    <color name="primary_dark5">#455A64</color>
+    <color name="primary_light5">#CFD8DC</color>
+    <color name="accent5">#FF5722</color>
+    <color name="primary_text5">#212121</color>
+    <color name="secondary_text5">#727272</color>
+    <color name="icons5">#FFFFFF</color>
+    <color name="divider5">#B6B6B6</color>
+    <color name="couleurHint5">@color/primary_light4</color>
+
 </resources>

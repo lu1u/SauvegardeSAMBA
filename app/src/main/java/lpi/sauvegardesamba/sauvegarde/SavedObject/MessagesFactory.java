@@ -2,6 +2,7 @@ package lpi.sauvegardesamba.sauvegarde.SavedObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.Nullable;
 
 import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.utils.Preferences;
@@ -55,6 +56,7 @@ protected String getRepertoireObjets(Context context)
 }
 
 @Override
+@Nullable
 protected Cursor getList(Context context)
 {
 	return Message.getList(context);

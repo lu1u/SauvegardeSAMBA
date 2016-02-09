@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/buttonOK"
-        android:icon="@drawable/check"
+        android:icon="@drawable/ic_check"
         android:title="Ok"
         app:showAsAction="ifRoom"/>
 </menu>

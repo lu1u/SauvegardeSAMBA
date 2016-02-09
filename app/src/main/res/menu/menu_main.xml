@@ -9,16 +9,18 @@
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_lancer_tous"
+        android:icon="@drawable/ic_run"
         android:orderInCategory="10"
         android:title="Tous sauvegarder"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 
     <group android:id="@+id/group_1">
     <item
         android:id="@+id/action_plannification"
+        android:icon="@drawable/ic_calendar"
         android:orderInCategory="100"
-        android:title="Plannification"
-        app:showAsAction="never"/>
+        android:title="Automatisation"
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="110"

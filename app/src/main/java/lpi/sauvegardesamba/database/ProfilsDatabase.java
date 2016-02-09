@@ -1,4 +1,4 @@
-package lpi.sauvegardesamba.profils;
+package lpi.sauvegardesamba.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-import lpi.sauvegardesamba.database.DatabaseHelper;
 import lpi.sauvegardesamba.MainActivity;
+import lpi.sauvegardesamba.profils.Profil;
 
 /**
  * Created by lucien on 26/01/2016.
@@ -16,6 +16,14 @@ import lpi.sauvegardesamba.MainActivity;
 public class ProfilsDatabase
 {
 public static final int INVALID_ID = -1;
+
+public static final int S_JAMAIS = 0;              // Ne jamais integrer ce profil dans une sauvegarde automatique
+public static final int S_AUTO_WIFI = 1;           // Integration dans les sauvegardes automatiques uniquement si on est connecte en WIFI
+public static final int S_AUTO_TOUJOURS = 2;       // Integration dans les sauvegardes automatiques qu'on soit connecte en donnees mobiles ou WIFI
+/**
+ * Instance unique non préinitialisée
+ */
+private static ProfilsDatabase INSTANCE = null;
 private SQLiteDatabase database;
 private DatabaseHelper dbHelper;
 
@@ -24,11 +32,6 @@ private ProfilsDatabase(Context context)
 	dbHelper = new DatabaseHelper(context);
 	database = dbHelper.getReadableDatabase();
 }
-
-/**
- * Instance unique non préinitialisée
- */
-private static ProfilsDatabase INSTANCE = null;
 
 /**
  * Point d'accès pour l'instance unique du singleton
@@ -141,21 +144,6 @@ public long nbProfils()
 	cursor.close();
 
 	return count;
-}
-
-
-public Cursor getProfilsActifs()
-{
-	Cursor cursor = null;
-	try
-	{
-		String where = DatabaseHelper.COLUMN_SAUVEGARDE_MANUELLE + " = 1";
-		cursor = database.rawQuery("select * from " + DatabaseHelper.TABLE_PROFILS + " WHERE " + where, null);
-	} catch (SQLException e)
-	{
-		MainActivity.SignaleErreur("récupération de la liste des profils actifs", e);
-	}
-	return cursor;
 }
 
 public void ChangeDate(int Id, int derniereSauvegarde)

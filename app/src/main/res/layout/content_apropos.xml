@@ -14,51 +14,42 @@
     tools:showIn="@layout/activity_apropos">
 
 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="lpi.sauvegardesamba.AboutActivity">
-        <TextView
+    <TextView
+        android:id="@+id/textView16"
+        style="@android:style/TextAppearance.DeviceDefault.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Sauvegarde SAMBA 2.0"
-            android:id="@+id/textView15"
-            android:layout_gravity="center_horizontal|top"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Sauvegarde vos contacts, vos appels, vos messages, vos photos et vos vidéos sur un répertoire partagé de votre ordinateur sans avoir à passer par Internet.\nApplication développée spécialement pour Véronique, avec l&apos;aide de Perrine pour l&apos;icône de l&apos;application\n\nIcônes tirées de\nhttps://materialdesignicons.com/\nNombreux détails techniques réglés grâce à\nhttp://stackoverflow.com\nCommunication réseau par JCIFS (https://jcifs.samba.org/)"
-            android:id="@+id/textView16"
             android:layout_gravity="center_vertical"
-            android:hyphenationFrequency="normal"
-            android:elegantTextHeight="true"
             android:breakStrategy="balanced"
-            style="@android:style/TextAppearance.DeviceDefault.Medium"
-            android:padding="@dimen/text_margin"/>
+        android:elegantTextHeight="true"
+        android:hyphenationFrequency="normal"
+        android:padding="@dimen/text_margin"
+        android:text="Sauvegarde vos contacts, vos appels, vos messages, vos photos et vos vidéos sur un répertoire partagé de votre ordinateur sans avoir à passer par Internet.\nApplication développée spécialement pour Véronique, avec l&apos;aide de Perrine pour l&apos;icône de l&apos;application\n\nCrédits:\nhttps://materialdesignicons.com\nhttp://stackoverflow.com\nhttps://jcifs.samba.org/"
+        android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <ImageView
+            android:id="@+id/imageView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView4"
             android:layout_gravity="left|top"
-            android:src="@mipmap/ic_launcher"
+            android:background="@id/action_bar"
             android:scaleType="fitXY"
-            />
+            android:src="@mipmap/ic_launcher"/>
 
         <TextView
+            android:id="@+id/textView17"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_gravity="center_horizontal|bottom"
             android:text="(c) Lucien Pilloni 2014"
-            android:id="@+id/textView17"
-            android:layout_gravity="center_horizontal|bottom"/>
-    </FrameLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:text="Sauvegarde SAMBA 2.0 Beta"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        />
+</FrameLayout>

@@ -4,16 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
-
-import java.net.MalformedURLException;
-import java.util.Objects;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import lpi.sauvegardesamba.profils.Profil;
-import lpi.sauvegardesamba.sauvegarde.ProgressDlg;
+import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
+import lpi.sauvegardesamba.sauvegarde.AsyncSauvegardeManager;
 import lpi.sauvegardesamba.sauvegarde.SauvegardeReturnCode;
 import lpi.sauvegardesamba.utils.Report;
 
@@ -22,11 +19,6 @@ import lpi.sauvegardesamba.utils.Report;
  */
 public abstract class SavedObjectFactory
 {
-protected enum MESSAGES
-{
-	LOG_SAUVEGARDE, IMPOSSIBLE_CREER_REPERTOIRE, PROGRESS, ERREUR_LORS_DE_LA_SAUVEGARDE, INACTIF
-}
-
 protected abstract boolean objetsActifs(Profil profil);
 
 protected abstract boolean regrouperObjets(Context context);
@@ -37,21 +29,21 @@ protected abstract String getMessage(MESSAGES message, Object... arguments);
 @NonNull
 protected abstract String getRepertoireObjets(Context context);
 
-@NonNull
+@Nullable
 protected abstract Cursor getList(Context context);
 
 @NonNull
 protected abstract SavedObject creerObjet(Cursor cursor, Context context);
 
-public SauvegardeReturnCode sauvegarde(Context context, Profil profil, String rootPath, Report report, NtlmPasswordAuthentication authentification, ProgressDlg dlg)
+public SauvegardeReturnCode sauvegarde(Context context, Profil profil, String rootPath, NtlmPasswordAuthentication authentification, AsyncSauvegardeManager dlg)
 {
 	if (!objetsActifs(profil))
 	{
-		report.Log(getMessage(MESSAGES.INACTIF));
+		Report.Log(Report.NIVEAU.DEBUG, getMessage(MESSAGES.INACTIF));
 		return SauvegardeReturnCode.INACTIF;
 	}
 
-	report.Log(getMessage(MESSAGES.LOG_SAUVEGARDE));
+	Report.Log(Report.NIVEAU.DEBUG, getMessage(MESSAGES.LOG_SAUVEGARDE));
 	rootPath = SavedObject.Combine(rootPath, getRepertoireObjets(context));
 	try
 	{
@@ -63,7 +55,7 @@ public SauvegardeReturnCode sauvegarde(Context context, Profil profil, String ro
 				smbRoot.mkdir();
 			} catch (SmbException e)
 			{
-				report.Log(getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
+				Report.Log(Report.NIVEAU.ERROR, getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
 				return SauvegardeReturnCode.IMPOSSIBLE_CREER_REPERTOIRE;
 			}
 		}
@@ -74,14 +66,14 @@ public SauvegardeReturnCode sauvegarde(Context context, Profil profil, String ro
 		while (cursor.moveToNext() && !dlg.isCanceled())
 		{
 			current++;
-			dlg.setProgress(getMessage(MESSAGES.PROGRESS), current, max);
+			AsyncSauvegarde.signaleProgress(context, getMessage(MESSAGES.PROGRESS), current, max);
 
 			SavedObject objet = creerObjet(cursor, context);
 			if (objet.quelqueChoseASauvegarder())
 			{
-				SmbFile objectRoot = getPath(rootPath, objet, report, context, authentification);
+				SmbFile objectRoot = getPath(rootPath, objet, context, authentification);
 				if (objectRoot != null)
-					switch (objet.sauvegarde(objectRoot, report, context, authentification))
+					switch (objet.sauvegarde(objectRoot, context, authentification))
 					{
 						case ERREUR_COPIE:
 						case EXISTE_DEJA:
@@ -98,15 +90,16 @@ public SauvegardeReturnCode sauvegarde(Context context, Profil profil, String ro
 
 	} catch (Exception e)
 	{
-		report.Log(getMessage(MESSAGES.ERREUR_LORS_DE_LA_SAUVEGARDE, rootPath));
-		report.Log(e);
+		Report.Log(Report.NIVEAU.ERROR, getMessage(MESSAGES.ERREUR_LORS_DE_LA_SAUVEGARDE, rootPath));
+		Report.Log(Report.NIVEAU.DEBUG, e);
 	}
+
+	Report.Log(Report.NIVEAU.DEBUG, "Tous les objets traités");
 	return SauvegardeReturnCode.OK;
 }
 
-
 @Nullable
-private SmbFile getPath(String rootPath, SavedObject objet, Report report, Context context, NtlmPasswordAuthentication authentification)
+private SmbFile getPath(String rootPath, SavedObject objet, Context context, NtlmPasswordAuthentication authentification)
 {
 	// Sous repertoire pour cet objet ?
 	SmbFile objectRoot = null;
@@ -124,7 +117,7 @@ private SmbFile getPath(String rootPath, SavedObject objet, Report report, Conte
 					objectRoot.mkdir();
 				} catch (SmbException e)
 				{
-					report.Log(getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
+					Report.Log(Report.NIVEAU.ERROR, getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
 					return null;
 				}
 			}
@@ -134,11 +127,17 @@ private SmbFile getPath(String rootPath, SavedObject objet, Report report, Conte
 
 	} catch (Exception e)
 	{
-		report.Log("Erreur lors de la creation du repertoire " + rootPath);
-		report.Log(e);
+		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire " + rootPath);
+		Report.Log(Report.NIVEAU.DEBUG, e);
 	}
 
 	return objectRoot;
+}
+
+
+protected enum MESSAGES
+{
+	LOG_SAUVEGARDE, IMPOSSIBLE_CREER_REPERTOIRE, PROGRESS, ERREUR_LORS_DE_LA_SAUVEGARDE, INACTIF
 }
 
 }

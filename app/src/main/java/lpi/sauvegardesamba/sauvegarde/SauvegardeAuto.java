@@ -8,18 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
-import android.widget.RemoteViews;
 
 import lpi.sauvegardesamba.MainActivity;
 import lpi.sauvegardesamba.R;
+import lpi.sauvegardesamba.profils.Profil;
 
-public class SauvegardeAuto extends AsyncTask<Void, Void, Void> implements ProgressDlg
+public class SauvegardeAuto extends AsyncTask<Void, Void, Void> implements SauvegardeListener
 {
+static final int NOTIFICATION_ID = 1;
     Context _context;
     NotificationManager _notificationManager;
     Notification _notification;
     NotificationCompat.Builder _builder;
-    static final int NOTIFICATION_ID = 1;
     String _message;
 
 
@@ -62,7 +62,7 @@ public class SauvegardeAuto extends AsyncTask<Void, Void, Void> implements Progr
     }
 
 
-    @Override
+
     public void setProgress(String format, int step, int Max)
     {
         //	if(  step % 10 == 0)
@@ -71,24 +71,13 @@ public class SauvegardeAuto extends AsyncTask<Void, Void, Void> implements Progr
         }
     }
 
-@Override
-public void setProfil(String profil)
-{
-    Notification(profil);
-}
-
-@Override
-public void setPartage(String partage)
-{
-
-}
 
 
 @Override
     protected Void doInBackground(Void... params)
     {
-        Sauvegarde sauve = new Sauvegarde(_context, this);
-        sauve.execute(null, Sauvegarde.TYPE_LAUNCHED.AUTO, Sauvegarde.TOUS_LES_PROFILS);
+        /*Sauvegarde sauve = new Sauvegarde(_context, this);
+        sauve.execute(null, Sauvegarde.TYPE_LAUNCHED.AUTO, Sauvegarde.TOUS_LES_PROFILS);*/
         return null;
     }
 
@@ -106,7 +95,6 @@ public void setPartage(String partage)
         return String.format(format, args);
     }
 
-    @Override
     public boolean isCanceled()
     {
         return false;
@@ -116,11 +104,33 @@ public void setPartage(String partage)
     /* (non-Javadoc)
      * @see lpi.sauvegardesamba.Sauvegarde.ProgressDlg#notification(java.lang.String)
      */
-    @Override
     public void notification(String s)
     {
         Notification(s);
     }
 
 
+@Override
+public void onDepartSauvegarde()
+{
+
+}
+
+@Override
+public void onFinSauvegarde()
+{
+
+}
+
+@Override
+public void onProfil(Profil profil)
+{
+
+}
+
+@Override
+public void onProgress(String format, int step, int Max)
+{
+
+}
 }

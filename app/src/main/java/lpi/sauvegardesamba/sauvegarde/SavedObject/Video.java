@@ -3,6 +3,8 @@ package lpi.sauvegardesamba.sauvegarde.SavedObject;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,6 +18,7 @@ import lpi.sauvegardesamba.sauvegarde.SauvegardeReturnCode;
 import lpi.sauvegardesamba.utils.Report;
 
 /**
+ * Objet representant une video stockee sur le telephone
  * Created by lucien on 30/01/2016.
  */
 public class Video extends SavedObject
@@ -52,6 +55,7 @@ public Video(Cursor cursor, Context context)
 	_bucketName = cursor.getString(_colonneBucketName);
 }
 
+@Nullable
 public static Cursor getList(Context context)
 {
 	Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
@@ -59,19 +63,25 @@ public static Cursor getList(Context context)
 			null,  //$NON-NLS-1$
 			null,
 			null);
-	_colonneAbsolutePath = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-	_colonneDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
-	_colonneDateModified = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_MODIFIED);
-	_colonneDateTaken = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_TAKEN);
-	_colonneDateAdded = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED);
-	_colonneBucketName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
+	try
+	{
+		_colonneAbsolutePath = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+		_colonneDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
+		_colonneDateModified = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_MODIFIED);
+		_colonneDateTaken = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_TAKEN);
+		_colonneDateAdded = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED);
+		_colonneBucketName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
+	} catch (IllegalArgumentException e)
+	{
+		return null;
+	}
 	return cursor;
 }
 
 /***
- * Calcule un nom de fichier pour enregistrer ce contact
+ * Calcule un nom de fichier pour enregistrer ce ic_contact
  *
- * @return
+ *
  */
 public String getFileName()
 {
@@ -80,14 +90,9 @@ public String getFileName()
 
 
 /**
- * Sauvegarde le contact dans le fichier samba donne en parametre
- *
- * @param smbDest
- * @param report
- * @param context
- * @throws IOException
+ * Sauvegarde le ic_contact dans le fichier samba donne en parametre
  */
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context context, NtlmPasswordAuthentication authentification) throws IOException
+public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
 	String fileName = getFileName()  ;
 	SmbFile smbDest = new SmbFile(Combine(smbRoot.getCanonicalPath(),fileName), authentification);
@@ -124,8 +129,8 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context c
 
 	} catch (Exception e)
 	{
-		report.Log("Erreur lors de la sauvegarde de la vidéo " + _displayName);
-		report.Log(e);
+		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde de la vidéo " + _displayName);
+		Report.Log(Report.NIVEAU.ERROR, e);
 		return SauvegardeReturnCode.ERREUR_COPIE ;
 	} finally
 	{
@@ -148,6 +153,7 @@ public String Nom(Context context)
 	return _displayName;
 }
 
+@NonNull
 public String getCategorie()
 {
 	return _bucketName;

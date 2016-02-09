@@ -24,22 +24,7 @@ import lpi.sauvegardesamba.utils.Report;
  */
 public abstract class SavedObject
 {
-public abstract SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context context, NtlmPasswordAuthentication authentification) throws Exception;
-public static String Combine(String partage, String path)
-{
-	if (partage.endsWith("/"))
-		return partage + path;
-	else
-		return partage + "/" + path;
-}
-
-public boolean quelqueChoseASauvegarder()
-{
-	return true;
-}
-
-public abstract String Nom(Context context);
-
+public static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 final static int[] illegalChars = {34, 60, 62, 124, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 58, 42, 63, 92, 47};
 
 static
@@ -47,6 +32,13 @@ static
 	Arrays.sort(illegalChars);
 }
 
+public static String Combine(String partage, String path)
+{
+	if (partage.endsWith("/"))
+		return partage + path;
+	else
+		return partage + "/" + path;
+}
 
 static public String getExtension(String absolutePath)
 {
@@ -67,8 +59,20 @@ public static String cleanFileName(String badFileName)
 	return cleanName.toString();
 }
 
+public static boolean fileNameOk(String fileName)
+{
+	for (int i = 0; i < fileName.length(); i++)
+	{
+		int c = (int) fileName.charAt(i);
+		if (Arrays.binarySearch(illegalChars, c) >= 0)
+			return false;
+	}
+
+	return true;
+}
+
 /**
- * Retrouve le nom du contact a partir de son numero
+ * Retrouve le nom du ic_contact a partir de son numero
  *
  * @param a
  * @param numero
@@ -107,32 +111,6 @@ public static String getContact(Context a, String numero)
 	}
 	return res;
 
-}
-
-
-/***
- * @return
- */
-protected SmbFile getDestFile(SmbFile smbRoot, String categorie, Report report, NtlmPasswordAuthentication authentication)
-{
-	String path = smbRoot.getCanonicalPath();
-
-	if (categorie != null)
-		path = Combine(path, categorie);
-
-	try
-	{
-		SmbFile smbf = new SmbFile(path, authentication);
-		if (!smbf.exists())
-			smbf.mkdir();
-
-		return smbf;
-	} catch (Exception e)
-	{
-		report.Log("création du répertoire de sauvegarde " + path);
-		report.Log(e);
-		return smbRoot;
-	}
 }
 
 public static String sqliteDateToString(Context context, long l)
@@ -184,8 +162,6 @@ public static String sqliteDurationToString(Context context, long l)
 	}
 }
 
-public static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
-
 public static long copyLarge(InputStream input, OutputStream output) throws IOException
 {
 	byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
@@ -197,6 +173,40 @@ public static long copyLarge(InputStream input, OutputStream output) throws IOEx
 		count += n;
 	}
 	return count;
+}
+
+public abstract SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws Exception;
+
+public boolean quelqueChoseASauvegarder()
+{
+	return true;
+}
+
+public abstract String Nom(Context context);
+
+/***
+ * @return
+ */
+protected SmbFile getDestFile(SmbFile smbRoot, String categorie, Report report, NtlmPasswordAuthentication authentication)
+{
+	String path = smbRoot.getCanonicalPath();
+
+	if (categorie != null)
+		path = Combine(path, categorie);
+
+	try
+	{
+		SmbFile smbf = new SmbFile(path, authentication);
+		if (!smbf.exists())
+			smbf.mkdir();
+
+		return smbf;
+	} catch (Exception e)
+	{
+		Report.Log(Report.NIVEAU.ERROR, "création du répertoire de sauvegarde " + path);
+		Report.Log(Report.NIVEAU.ERROR, e);
+		return smbRoot;
+	}
 }
 
 @NonNull

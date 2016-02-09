@@ -5,11 +5,12 @@ import android.content.SharedPreferences;
 
 
 /**
- * Created by lucien on 18/11/2015.
+ * Gestionnaire des preferences de l'application
  */
 public class Preferences
 {
 public static final String PREFERENCES = "com.lpi.sauvegarde.preferences"; //$NON-NLS-1$
+public static final String PREF_NON_INITIALISEE = "@@non_initialise@@";
 private static final String PREF_SAUVEGARDE_EN_COURS = "SauvegardeEnCours"; //$NON-NLS-1$
 private static final String PREF_SAUVEGARDE_AUTO_HEURE = "HeureAutomatique.Heure"; //$NON-NLS-1$
 private static final String PREF_SAUVEGARDE_AUTO_MINUTE = "HeureAutomatique.Minute"; //$NON-NLS-1$
@@ -21,13 +22,12 @@ private static final String PREF_REPERTOIRE_APPELS = "Repertoire.Appels";
 private static final String PREF_REPERTOIRE_MESSAGES = "Repertoire.Messages";
 private static final String PREF_REPERTOIRE_PHOTOS = "Repertoire.Photos";
 private static final String PREF_REPERTOIRE_VIDEOS = "Repertoire.Videos";
-
+private static final String PREF_DETECTE_CONNEXION_WIFI = "Detection.WIFI";
 private static final String PREF_REGROUPER_APPELS   = "Regrouper.Appels";
 private static final String PREF_REGROUPER_MESSAGES = "Regrouper.Messages";
 private static final String PREF_REGROUPER_PHOTOS   = "Regrouper.Photos";
 private static final String PREF_REGROUPER_VIDEOS   = "Regrouper.Videos";
-
-public static final String PREF_NON_INITIALISEE = "@@non_initialise@@";
+private static final String PREF_THEME = "Theme";
 private SharedPreferences _preferences;
 private SharedPreferences.Editor _editor;
 
@@ -48,7 +48,7 @@ public void finalize() throws Throwable
 	super.finalize();
 }
 
-public void Save()
+public void save()
 {
 	if (_editor != null)
 		_editor.apply();
@@ -137,22 +137,50 @@ public void setSauvegardeAuto(boolean b)
 	putBool(PREF_SAUVEGARDE_AUTO_ACTIVEE, b);
 }
 
+public String getPrefRepertoireSauvegarde()
+{
+	return _preferences.getString(PREF_REPERTOIRE_SAUVEGARDE, "SauvegardeSAMBA");
+}
 
 public void setPrefRepertoireSauvegarde(String rep) { putString(PREF_REPERTOIRE_SAUVEGARDE, rep); }
-public String getPrefRepertoireSauvegarde() { return _preferences.getString(PREF_REPERTOIRE_SAUVEGARDE, "SauvegardeSAMBA"); }
-public void setPrefRepertoireContacts(String rep) { putString(PREF_REPERTOIRE_CONTACTS, rep); }
+
 public String getPrefRepertoireContacts() { return _preferences.getString(PREF_REPERTOIRE_CONTACTS, "Contacts"); }
-public void setPrefRepertoireAppels(String rep) { putString(PREF_REPERTOIRE_APPELS, rep); }
+
+public void setPrefRepertoireContacts(String rep)
+{
+	putString(PREF_REPERTOIRE_CONTACTS, rep);
+}
+
 public String getPrefRepertoireAppels() { return _preferences.getString(PREF_REPERTOIRE_APPELS, "Appels"); }
-public void setPrefRepertoireMessages(String rep) { putString(PREF_REPERTOIRE_MESSAGES, rep); }
+
+public void setPrefRepertoireAppels(String rep)
+{
+	putString(PREF_REPERTOIRE_APPELS, rep);
+}
+
 public String getPrefRepertoireMessages() { return _preferences.getString(PREF_REPERTOIRE_MESSAGES, "Messages"); }
-public void setPrefRepertoirePhotos(String rep) { putString(PREF_REPERTOIRE_PHOTOS, rep); }
+
+public void setPrefRepertoireMessages(String rep)
+{
+	putString(PREF_REPERTOIRE_MESSAGES, rep);
+}
+
 public String getPrefRepertoirePhotos() { return _preferences.getString(PREF_REPERTOIRE_PHOTOS, "Photos"); }
-public void setPrefRepertoireVideos(String rep) { putString(PREF_REPERTOIRE_VIDEOS, rep); }
-public String getPrefRepertoireVideos() { return _preferences.getString(PREF_REPERTOIRE_VIDEOS, "Videos"); }
 
+public void setPrefRepertoirePhotos(String rep)
+{
+	putString(PREF_REPERTOIRE_PHOTOS, rep);
+}
 
+public String getPrefRepertoireVideos()
+{
+	return _preferences.getString(PREF_REPERTOIRE_VIDEOS, "Videos");
+}
 
+public void setPrefRepertoireVideos(String rep)
+{
+	putString(PREF_REPERTOIRE_VIDEOS, rep);
+}
 
 public boolean getRegrouperAppels() { return _preferences.getBoolean(PREF_REGROUPER_APPELS, true) ;}
 public void setPrefRegrouperAppels(boolean regrouper ){ putBool(PREF_REGROUPER_APPELS, regrouper);}
@@ -165,4 +193,25 @@ public void setPrefRegrouperPhotos(boolean regrouper ){ putBool(PREF_REGROUPER_P
 
 public boolean getRegrouperVideos() { return _preferences.getBoolean(PREF_REGROUPER_VIDEOS, true) ;}
 public void setPrefRegrouperVideos(boolean regrouper ){ putBool(PREF_REGROUPER_VIDEOS, regrouper);}
+
+
+public boolean getDetectionWIFI()
+{
+	return _preferences.getBoolean(PREF_DETECTE_CONNEXION_WIFI, true);
+}
+
+public void setDetectionWIFI(boolean regrouper)
+{
+	putBool(PREF_DETECTE_CONNEXION_WIFI, regrouper);
+}
+
+public int getTheme()
+{
+	return _preferences.getInt(PREF_THEME, 0);
+}
+
+public void setTheme(int p)
+{
+	putInt(PREF_THEME, p);
+}
 }

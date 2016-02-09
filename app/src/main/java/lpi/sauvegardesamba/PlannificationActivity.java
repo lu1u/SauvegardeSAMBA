@@ -20,9 +20,10 @@ import android.widget.TimePicker;
 
 import java.util.Calendar;
 
+import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
 import lpi.sauvegardesamba.sauvegarde.Plannificateur;
-import lpi.sauvegardesamba.sauvegarde.Sauvegarde;
 import lpi.sauvegardesamba.utils.Preferences;
+import lpi.sauvegardesamba.utils.Utils;
 
 public class PlannificationActivity extends AppCompatActivity implements TimePicker.OnTimeChangedListener
 {
@@ -30,10 +31,18 @@ public static final String ACTION_PLANNIFICATION_FINISHED = "lpi.plannification_
 private static final String SAUVEGARDE_AUTO = "lpi.SauveAuto";
 private static final String HOUR = "lpi.Heure";
 private static final String MINUTE = "lpi.Minute";
+private static final java.lang.String DETECTE_WIFI = "lpi.DetecteWIFI";
 
+private CheckBox _sauvegardeAutoActivee;
+private CheckBox _detectionWIFI;
+private TextView _textProchaineSauvegarde;
+private Preferences _pref;
+private int _Heure, _Minute;
+private boolean _moderne = true;
 @Override
 protected void onCreate(Bundle savedInstanceState)
 {
+	Utils.setTheme(this);
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_plannification);
 	Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -48,23 +57,27 @@ protected void onCreate(Bundle savedInstanceState)
 
 	_textProchaineSauvegarde = (TextView) findViewById(R.id.textViewProchaineSauvegarde);
 	_sauvegardeAutoActivee = (CheckBox) findViewById(R.id.checkBoxSauvegardePlannifiee);
-
+	_detectionWIFI = (CheckBox) findViewById(R.id.checkBoxConnexionWifi);
 	boolean bSauvegardeAutoActivee;
+	boolean bDetecteWIFI;
 
 	if (savedInstanceState != null)
 	{
 		bSauvegardeAutoActivee = savedInstanceState.getBoolean(SAUVEGARDE_AUTO);
+		bDetecteWIFI = savedInstanceState.getBoolean(DETECTE_WIFI);
 		_Heure = savedInstanceState.getInt(HOUR);
 		_Minute = savedInstanceState.getInt(MINUTE);
 	}
 	else
 	{
 		bSauvegardeAutoActivee = _pref.getSauvegarderAuto();
+		bDetecteWIFI = _pref.getDetectionWIFI();
 		_Heure = _pref.getSauvegardeAutoHeure();
 		_Minute = _pref.getSauvegardeAutoMinute();
 	}
 
 	_sauvegardeAutoActivee.setChecked(bSauvegardeAutoActivee);
+	_detectionWIFI.setChecked(bDetecteWIFI);
 	_sauvegardeAutoActivee.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
 	{
 		@Override
@@ -93,41 +106,7 @@ protected void onCreate(Bundle savedInstanceState)
 	UpdateText();
 }
 
-private CheckBox _sauvegardeAutoActivee;
-private TextView _textProchaineSauvegarde;
-private Preferences _pref;
-private int _Heure, _Minute;
 
-/**
- * Called when the Fragment is no longer resumed.  This is generally
- * tied to {@link Activity#onPause() Activity.onPause} of the containing
- * Activity's lifecycle.
- */
-/*@SuppressWarnings("deprecation")
-@Override
-public void onPause()
-{
-	_pref.setSauvegardeAuto(((CheckBox) findViewById(R.id.checkBoxSauvegardePlannifiee)).isChecked());
-
-	TimePicker p = (TimePicker) findViewById(R.id.timePicker);
-	int Heure, Minute;
-	if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
-	{
-		Heure = p.getHour();
-		Minute = p.getMinute();
-	}
-	else
-	{
-		Heure = p.getCurrentHour();
-		Minute = p.getCurrentMinute();
-	}
-	_pref.setPrefSauvegardeAutoHeure(Heure);
-	_pref.setPrefSauvegardeAutoMinute(Minute);
-	_pref.Save();
-	Plannificateur plan = new Plannificateur(this);
-	plan.plannifieSauvegarde();
-	super.onPause();
-}*/
 @Override
 public void onSaveInstanceState(Bundle savedInstanceState)
 {
@@ -157,20 +136,12 @@ public void onSaveInstanceState(Bundle savedInstanceState)
  * Activity's lifecycle.
  */
 
-@SuppressWarnings("deprecation")
-@Override
-public void onResume()
-{
-
-	super.onResume();
-}
-
 private void UpdateText()
 {
 	if (_pref.getSauvegarderAuto())
 	{
 		_textProchaineSauvegarde.setText(
-				String.format(getString(R.string.sauvegarde_auto_programmee), Sauvegarde.getLocalizedTimeAndDate(this, Calendar.getInstance())));
+				String.format(getString(R.string.sauvegarde_auto_programmee), AsyncSauvegarde.getLocalizedTimeAndDate(this, Calendar.getInstance())));
 
 	}
 	else
@@ -241,9 +212,10 @@ public boolean onOptionsItemSelected(MenuItem item)
 public void onOK()
 {
 	_pref.setSauvegardeAuto(_sauvegardeAutoActivee.isChecked());
+	_pref.setDetectionWIFI(_detectionWIFI.isChecked());
 	_pref.setPrefSauvegardeAutoHeure(_Heure);
 	_pref.setPrefSauvegardeAutoMinute(_Minute);
-	_pref.Save();
+	_pref.save();
 	Plannificateur p = new Plannificateur(this);
 	p.plannifieSauvegarde();
 

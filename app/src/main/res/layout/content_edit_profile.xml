@@ -1,200 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="lpi.sauvegardesamba.EditProfileActivity"
     tools:showIn="@layout/activity_edit_profile">
 
     <ScrollView
         android:id="@+id/scrollView3"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent">
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="vertical">
 
             <LinearLayout
-                android:layout_gravity="center_horizontal"
-                android:layout_height="wrap_content"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:orientation="vertical"
                 >
 
                 <TextView
                     android:id="@+id/textView10"
-                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Profil:"
                     android:textAppearance="?android:attr/textAppearanceMedium"/>
 
                 <LinearLayout
-                    android:layout_height="match_parent"
                     android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:orientation="horizontal">
 
                     <EditText
-                        android:ems="10"
                         android:id="@+id/editTextNomProfil"
-                        android:inputType="textPersonName"
-                        android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:singleLine="true"
-                        android:hint="nom du profil"/>
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="nom du profil"
+                        android:inputType="textPersonName"
+                        android:singleLine="true"/>
 
                     <TextView
                         android:id="@+id/textViewId"
-                        android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"/>
                 </LinearLayout>
-
-                <CheckBox
-                    android:id="@+id/checkBoxPlannifiee"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:text="Sauvegarde plannifiée"/>
-
-                <CheckBox
-                    android:id="@+id/checkBoxWifi"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_width="wrap_content"
-                    android:text="Wifi seulement"/>
 
             </LinearLayout>
 
 
             <Space
-                android:layout_height="20px"
                 android:layout_width="20px"
+                android:layout_height="20px"
                 />
 
             <LinearLayout
-                android:layout_height="wrap_content"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
 
                 <TextView
-                    android:id="@+id/textView8"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/textView5"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sauvegardes automatiques:"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+                <Spinner
+                    android:id="@+id/spinnerSAuto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"/>
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Identité réseau:"
                     android:textAppearance="?android:attr/textAppearanceMedium"/>
 
                 <LinearLayout
-                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <EditText
                         android:id="@+id/editTextNomUtilisateur"
-                        android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:singleLine="true"
-                        android:hint="utilisateur"/>
+                        android:layout_height="wrap_content"
+                        android:hint="utilisateur"
+                        android:singleLine="true"/>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <EditText
-                        android:ems="10"
                         android:id="@+id/editTextMotDePasse"
-                        android:inputType="textPassword"
-                        android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:singleLine="true"
-                        android:hint="mot de passe"/>
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="mot de passe"
+                        android:inputType="textPassword"
+                        android:singleLine="true"/>
                 </LinearLayout>
 
                 <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:background="@drawable/button_rounded"
                     android:id="@+id/buttonPartage"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/text_margin"
+                    style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/text_margin"
+                    android:background="@drawable/button_rounded"
                     android:onClick="onClickChoisirPartage"
                     android:padding="@dimen/text_margin"
-                    android:text="Choissez un partage réseau"/>
+                    android:text="Choisissez un partage réseau"
+                    android:textAllCaps="false"/>
             </LinearLayout>
 
             <Space
-                android:layout_height="20px"
                 android:layout_width="20px"
+                android:layout_height="20px"
                 />
 
             <LinearLayout
-                android:layout_height="wrap_content"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
 
                 <TextView
                     android:id="@+id/textView7"
-                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Objets:"
                     android:textAppearance="?android:attr/textAppearanceMedium"/>
 
                 <RelativeLayout
-                    android:layout_gravity="center"
-                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     >
 
                     <CheckBox
                         android:id="@+id/checkBoxContacts"
-                        android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Contacts"/>
 
                     <CheckBox
                         android:id="@+id/checkBoxAppels"
-                        android:layout_centerHorizontal="true"
-                        android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
                         android:text="Appels"/>
 
 
                     <CheckBox
                         android:id="@+id/checkBoxMessages"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentTop="true"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
                         android:text="Messages"/>
 
 
                     <CheckBox
                         android:id="@+id/checkBoxPhotos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_alignLeft="@+id/checkBoxContacts"
                         android:layout_below="@+id/checkBoxContacts"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
                         android:text="Photos"/>
 
 
                     <CheckBox
                         android:id="@+id/checkBoxVideos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_alignLeft="@+id/checkBoxAppels"
                         android:layout_alignStart="@+id/checkBoxAppels"
                         android:layout_alignTop="@+id/checkBoxPhotos"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
                         android:text="Vidéos"/>
 
                 </RelativeLayout>

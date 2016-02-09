@@ -7,25 +7,33 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import lpi.sauvegardesamba.database.ProfilsDatabase;
 import lpi.sauvegardesamba.partages.Partages;
 import lpi.sauvegardesamba.profils.Profil;
+import lpi.sauvegardesamba.utils.Utils;
 
 public class EditProfileActivity extends AppCompatActivity
 {
@@ -41,9 +49,6 @@ Profil _profil;
 EditText eNom;
 EditText eUtilisateur;
 EditText eMotDePasse;
-//CheckBox cbActif;
-CheckBox cbWifi;
-CheckBox cbPlannifie;
 CheckBox cbContacts;
 CheckBox cbAppels;
 CheckBox cbMessages;
@@ -51,6 +56,11 @@ CheckBox cbPhotos;
 CheckBox cbVideos;
 Button btPartage;
 TextView tvId;
+Spinner spin;
+
+// Array of Months acting as a data pump
+String[] integrations = {"Intégration du profil aux sauvegardes automatiques", "Jamais", "Seulement par WIFI", "Toujours"};
+int[] images = {R.drawable.ic_off, R.drawable.ic_off, R.drawable.ic_wifi, R.drawable.ic_toujours};
 private BroadcastReceiver receiver = new BroadcastReceiver()
 {
 	@Override
@@ -60,9 +70,11 @@ private BroadcastReceiver receiver = new BroadcastReceiver()
 			onReceiveListePartages(intent);
 	}
 };
+
 @Override
 protected void onCreate(Bundle savedInstanceState)
 {
+	Utils.setTheme(this);
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_edit_profile);
 	Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -81,8 +93,6 @@ protected void onCreate(Bundle savedInstanceState)
 	cbMessages = (CheckBox) findViewById(R.id.checkBoxMessages);
 	cbPhotos = (CheckBox) findViewById(R.id.checkBoxPhotos);
 	cbVideos = (CheckBox) findViewById(R.id.checkBoxVideos);
-	cbWifi = (CheckBox) findViewById(R.id.checkBoxWifi);
-	cbPlannifie = (CheckBox)findViewById(R.id.checkBoxPlannifiee);
 	tvId = (TextView) findViewById(R.id.textViewId);
 
 	if (savedInstanceState == null)
@@ -100,6 +110,49 @@ protected void onCreate(Bundle savedInstanceState)
 	}
 
 	MajUI();
+
+
+	// Declaring and typecasting a Spinner
+	Spinner spinnerSaveAuto = (Spinner) findViewById(R.id.spinnerSAuto);
+
+	// Setting a Custom Adapter to the Spinner
+	spinnerSaveAuto.setAdapter(new MyAdapter(this, R.layout.spinner_integration, integrations));
+	spinnerSaveAuto.setSelection(_profil.IntegrationSauvegardeAuto + 1);
+	spinnerSaveAuto.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+	{
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+		{
+			EditProfileActivity.this._profil.IntegrationSauvegardeAuto = position - 1;
+			if (EditProfileActivity.this._profil.IntegrationSauvegardeAuto == ProfilsDatabase.S_AUTO_TOUJOURS)
+			{
+				Toast.makeText(EditProfileActivity.this,
+						"Ce profil s'exécutera quel que soit le moyen de connection au réseau, y compris le réseau de données mobiles.\nATTENTION! Cela peut engendrer des couts de communication",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		/**
+		 * Callback method to be invoked when the selection disappears from this
+		 * view. The selection can disappear for instance when touch is activated
+		 * or when the adapter becomes empty.
+		 *
+		 * @param parent The AdapterView that now contains no selected item.
+		 */
+		@Override
+		public void onNothingSelected(AdapterView<?> parent)
+		{
+
+		}
+
+
+	});
+
+
+	Utils.addHint(this, R.id.editTextNomProfil, "Donnez un nom à votre profil");
+	Utils.addHint(this, R.id.editTextNomUtilisateur, "Nom d'utilisateur sur le réseau ou sur votre ordinateur");
+	Utils.addHint(this, R.id.editTextMotDePasse, "Mot de passe sur le réseau ou sur votre ordinateur");
+
 }
 
 private void MajUI()
@@ -123,16 +176,12 @@ private void MajUI()
 	else
 		tvId.setVisibility(View.GONE);
 
-	cbPlannifie.setChecked(_profil.Plannifie);
-	cbWifi.setChecked(_profil.Wifi);
-	//cbActif.setChecked(_profil.SauvegardeManuelle);
 	cbAppels.setChecked(_profil.Appels);
 	cbContacts.setChecked(_profil.Contacts);
 	cbMessages.setChecked(_profil.Messages);
 	cbPhotos.setChecked(_profil.Photos);
 	cbVideos.setChecked(_profil.Videos);
 }
-
 
 
 @Override
@@ -150,16 +199,20 @@ protected void onPause()
 	unregisterReceiver(receiver);
 	super.onPause();
 }
+
 @Override
-public boolean onCreateOptionsMenu(Menu menu) {
+public boolean onCreateOptionsMenu(Menu menu)
+{
 	MenuInflater inflater = getMenuInflater();
 	inflater.inflate(R.menu.menu_dialog_box, menu);
 	return true;
 }
 
 @Override
-public boolean onOptionsItemSelected(MenuItem item) {
-	switch (item.getItemId()) {
+public boolean onOptionsItemSelected(MenuItem item)
+{
+	switch (item.getItemId())
+	{
 		case R.id.buttonOK:
 			onOK();
 			return true;
@@ -175,9 +228,9 @@ public boolean onOptionsItemSelected(MenuItem item) {
 
 	}
 }
+
 /**
  * OK: fermer l'ecran et renvoyer les donnees
-
  */
 public void onOK()
 {
@@ -189,25 +242,29 @@ public void onOK()
 	_profil.Utilisateur = eUtilisateur.getText().toString();
 	_profil.MotDePasse = eMotDePasse.getText().toString();
 
-	if ("".equals(_profil.Nom))
-	{
+	boolean erreur = false;
+
+	if (displayError("".equals(_profil.Nom), eNom, "Donnez un nom à votre profil"))
+		erreur = true;
+
+	if (displayError(_profil.Partage == null || "".equals(_profil.Partage), btPartage, "Choisissez un partage réseau"))
+		erreur = true;
+
+	if (erreur)
+		return;
+
+	/*{
 		final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-		MainActivity.MessageNotification(findViewById(R.id.coordinatorlayout), "Veuillez donner un nom à votre profil") ;
-		return ;
-	}
+		MainActivity.MessageNotification(findViewById(R.id.coordinatorlayout), "Veuillez donner un nom à votre profil");
+		return;
+	} */
 
 	if (_profil.Partage == null || "".equals(_profil.Partage))
 	{
-		final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-		MainActivity.MessageNotification(findViewById(R.id.coordinatorlayout), "Veuillez choisir un partage réseau");
-		return ;
+		return;
 	}
 
-	_profil.Wifi = cbWifi.isChecked();
-	_profil.Plannifie = cbPlannifie.isChecked();
-	//_profil.SauvegardeManuelle = cbActif.isChecked();
 	_profil.Appels = cbAppels.isChecked();
 	_profil.Contacts = cbContacts.isChecked();
 	_profil.Messages = cbMessages.isChecked();
@@ -220,7 +277,34 @@ public void onOK()
 	bundle.putString(EXTRA_OPERATION, Operation);
 	returnIntent.putExtras(bundle);
 	setResult(Activity.RESULT_OK, returnIntent);
+
+
 	finish();
+}
+
+private boolean displayError(boolean error, View v, String message)
+{
+	if (error)
+	{
+		if (v instanceof EditText)
+		{
+			((TextView) v).setError(message);
+		}
+		else
+		{
+			final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+			MainActivity.MessageNotification(v, message);
+		}
+	}
+	else
+	{
+		if (v instanceof TextView)
+			((TextView) v).setError(null);
+	}
+
+
+	return error;
 }
 
 public void onAnnuler()
@@ -242,12 +326,13 @@ public void onClickChoisirPartage(View v)
 
 /***
  * Reception de la liste des partages trouves sur le reseau et lancement d'une fenetre pour en choisir un
+ *
  * @param intent
  */
 private void onReceiveListePartages(Intent intent)
 {
-	if ( intent == null)
-		return ;
+	if (intent == null)
+		return;
 
 	int retour = intent.getIntExtra(Partages.RESULT_RECHERCHE, Partages.RESULT_ERREUR);
 	if (retour != Partages.RESULT_OK)
@@ -257,7 +342,7 @@ private void onReceiveListePartages(Intent intent)
 	}
 
 	ArrayList<String> liste = intent.getStringArrayListExtra(Partages.LISTE_RESULT);
-	if (liste == null || liste.size()==0)
+	if (liste == null || liste.size() == 0)
 	{
 		MainActivity.MessageNotification(findViewById(R.id.coordinatorlayout), "Aucun partage trouvé sur cet ordinateur");
 		return;
@@ -281,4 +366,54 @@ private void onReceiveListePartages(Intent intent)
 	builderSingle.show();
 }
 
+// Creating an Adapter Class
+public class MyAdapter extends ArrayAdapter
+{
+
+	public MyAdapter(Context context, int textViewResourceId,
+	                 String[] objects)
+	{
+		super(context, textViewResourceId, objects);
+	}
+
+	public View getCustomView(int position, View convertView,
+	                          ViewGroup parent)
+	{
+
+		// Inflating the layout for the custom Spinner
+		LayoutInflater inflater = getLayoutInflater();
+		View layout = inflater.inflate(R.layout.spinner_integration, parent, false);
+
+		TextView tvLanguage = (TextView) layout.findViewById(R.id.textView1);
+		tvLanguage.setText(integrations[position]);
+
+		ImageView img = (ImageView) layout.findViewById(R.id.imageView);
+		img.setImageResource(images[position]);
+
+		// Setting Special atrributes for 1st element
+		if (position == 0)
+		{
+			img.setVisibility(View.GONE);
+			tvLanguage.setTextSize(20f);
+			tvLanguage.setTextColor(Color.BLACK);
+		}
+
+		return layout;
+	}
+
+	// It gets a View that displays in the drop down popup the data at the specified position
+	@Override
+	public View getDropDownView(int position, View convertView,
+	                            ViewGroup parent)
+	{
+		return getCustomView(position, convertView, parent);
+	}
+
+	// It gets a View that displays the data at the specified position
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent)
+	{
+		return getCustomView(position, convertView, parent);
+	}
+}
 }

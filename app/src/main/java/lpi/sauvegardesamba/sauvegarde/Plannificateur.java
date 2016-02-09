@@ -12,49 +12,24 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
+import lpi.sauvegardesamba.R;
 import lpi.sauvegardesamba.utils.AlarmReceiver;
 import lpi.sauvegardesamba.utils.Preferences;
-import lpi.sauvegardesamba.R;
-
-import java.util.Calendar;
 
 /**
  * @author lucien
  */
 public class Plannificateur
 {
-private final static String TAG = "Sauvegarde"; //$NON-NLS-1$
-
-private Context _context;
 public final static String COMMANDE_SAVE_ALARM = "lpi.Sauvegarde.Alarme"; //$NON-NLS-1$
+private final static String TAG = "Sauvegarde"; //$NON-NLS-1$
+private Context _context;
 
 public Plannificateur(Context context)
 {
 	_context = context;
-}
-
-/***
- * Plannifie la prochaine alarme Supprime la precedente si elle existe
- *
- * @param calendar
- */
-public void setAlarm(Calendar calendar)
-{
-	AlarmManager alarmManager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
-	Intent intent = new Intent(_context, AlarmReceiver.class);
-	intent.setAction(COMMANDE_SAVE_ALARM);
-
-	// Supprimer l'ancienne alarme
-	PendingIntent pendingIntentCancel = PendingIntent.getBroadcast(_context, 0, intent, 0);
-	alarmManager.cancel(pendingIntentCancel);
-
-	if (calendar != null)
-	{
-		Log.d(TAG, "Set alarme " + calendar.get(Calendar.YEAR) + '/' + (calendar.get(Calendar.MONTH) + 1) + '/' + calendar.get(Calendar.DAY_OF_MONTH) //$NON-NLS-1$
-				+ ' ' + calendar.get(Calendar.HOUR_OF_DAY) + ':' + calendar.get(Calendar.MINUTE) + ':' + calendar.get(Calendar.SECOND));
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(_context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-	}
 }
 
 /***
@@ -99,6 +74,29 @@ static public void setProchaineHeure(Calendar calendar, int heure, int minute)
 		calendar.add(Calendar.DAY_OF_YEAR, 1);
 }
 
+/***
+ * Plannifie la prochaine alarme Supprime la precedente si elle existe
+ *
+ * @param calendar
+ */
+public void setAlarm(Calendar calendar)
+{
+	AlarmManager alarmManager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
+	Intent intent = new Intent(_context, AlarmReceiver.class);
+	intent.setAction(COMMANDE_SAVE_ALARM);
+
+	// Supprimer l'ancienne alarme
+	PendingIntent pendingIntentCancel = PendingIntent.getBroadcast(_context, 0, intent, 0);
+	alarmManager.cancel(pendingIntentCancel);
+
+	if (calendar != null)
+	{
+		Log.d(TAG, "Set alarme " + calendar.get(Calendar.YEAR) + '/' + (calendar.get(Calendar.MONTH) + 1) + '/' + calendar.get(Calendar.DAY_OF_MONTH) //$NON-NLS-1$
+				+ ' ' + calendar.get(Calendar.HOUR_OF_DAY) + ':' + calendar.get(Calendar.MINUTE) + ':' + calendar.get(Calendar.SECOND));
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(_context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+	}
+}
 
 /***
  * Changement de l'heure de la sauvegarde automatique
@@ -113,7 +111,7 @@ public void plannifieSauvegarde()
 	if (calendar == null)
 	{
 		// Pas de sauvegarde automatique
-		Toast t = Toast.makeText(_context, Sauvegarde.formatResourceString(_context, R.string.sauvegarde_auto_desactivee),
+		Toast t = Toast.makeText(_context, AsyncSauvegarde.formatResourceString(_context, R.string.sauvegarde_auto_desactivee),
 				Toast.LENGTH_SHORT);
 		t.show();
 
@@ -137,8 +135,8 @@ public String getTextProchaineSauvegarde(Calendar calendar)
 {
 	if (calendar == null)
 		calendar = getProchaineSauvegarde(_context);
-	return Sauvegarde.formatResourceString(_context, R.string.sauvegarde_auto_programmee,
-			Sauvegarde.getLocalizedTimeAndDate(_context, calendar));
+	return AsyncSauvegarde.formatResourceString(_context, R.string.sauvegarde_auto_programmee,
+			AsyncSauvegarde.getLocalizedTimeAndDate(_context, calendar));
 }
 
 

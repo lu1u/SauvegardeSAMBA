@@ -41,24 +41,6 @@ public long _duration;
 public int _type;
 public String _address;
 
-@Nullable
-public static Cursor getList(Context context)
-{
-	if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED)
-	{
-		return null;
-	}
-	Cursor cursor = context.getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI, COLONNES, null, null, null);
-
-	_colID = cursor.getColumnIndexOrThrow(BaseColumns._ID);
-	_colNumber = cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER);
-	_colDate = cursor.getColumnIndexOrThrow(CallLog.Calls.DATE);
-	_colDuration = cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION);
-	_colType = cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE);
-
-	return cursor;
-}
-
 public Appel(Cursor cursor, Context context)
 {
 	_ID = cursor.getString(_colID);
@@ -69,6 +51,29 @@ public Appel(Cursor cursor, Context context)
 	_address = getContact(context, _number);
 }
 
+@Nullable
+public static Cursor getList(Context context)
+{
+	if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED)
+	{
+		return null;
+	}
+	Cursor cursor = context.getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI, COLONNES, null, null, null);
+
+	try
+	{
+		_colID = cursor.getColumnIndexOrThrow(BaseColumns._ID);
+		_colNumber = cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER);
+		_colDate = cursor.getColumnIndexOrThrow(CallLog.Calls.DATE);
+		_colDuration = cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION);
+		_colType = cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE);
+	} catch (IllegalArgumentException e)
+	{
+		return null;
+	}
+
+	return cursor;
+}
 
 @Override
 public String Nom(Context context)
@@ -107,7 +112,7 @@ public String getFileName(Context context)
 }
 
 @Override
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context context, NtlmPasswordAuthentication authentification) throws IOException
+public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
 	// Path de cet appel
  	String path = smbRoot.getCanonicalPath();
@@ -136,8 +141,8 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Report report, Context c
 		sops.write(("\nDurée: " + sqliteDurationToString(context, _duration)).getBytes());
 	} catch (IOException e)
 	{
-		report.Log("Erreur lors de la sauvegarde de l'appel " + _address + sqliteDateHourToString(context, _date));
-		report.Log(e);
+		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde de l'appel " + _address + sqliteDateHourToString(context, _date));
+		Report.Log(Report.NIVEAU.ERROR, e);
 		return SauvegardeReturnCode.ERREUR_CREATION_FICHIER;
 	} finally
 	{

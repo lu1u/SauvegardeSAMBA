@@ -5,32 +5,32 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import lpi.sauvegardesamba.database.ProfilsDatabase;
 import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.profils.ProfilsAdapter;
-import lpi.sauvegardesamba.profils.ProfilsDatabase;
+import lpi.sauvegardesamba.report.ReportActivity;
+import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
 import lpi.sauvegardesamba.sauvegarde.Plannificateur;
-import lpi.sauvegardesamba.sauvegarde.Sauvegarde;
 import lpi.sauvegardesamba.utils.Preferences;
+import lpi.sauvegardesamba.utils.Report;
+import lpi.sauvegardesamba.utils.Utils;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -54,20 +54,66 @@ private BroadcastReceiver receiver = new BroadcastReceiver()
 
 		if (ProfilsAdapter.ACTION_LANCE_SAUVEGARDE.equals(action))
 			lancerSauvegardeProfil(intent);
-		else
-			if ( EditProfileActivity.ACTION_EDIT_PROFIL_FINISHED.equals(action))
-				onEditProfile(intent);
-		else
-				if ( Sauvegarde.ACTION_INFOS_FROM_SAUVEGARDE.equals(action))
-					onInfoFromService(intent) ;
+		else if (EditProfileActivity.ACTION_EDIT_PROFIL_FINISHED.equals(action))
+			onEditProfile(intent);
+		else if (AsyncSauvegarde.ACTION_ASYNCSAVE.equals(action))
+			onInfoFromService(intent);
 	}
 };
+
+/***
+ * Signaler une erreur
+ *
+ * @param message
+ * @param e
+ */
+
+static public void SignaleErreur(String message, Exception e)
+{
+/*	LayoutInflater inflater = _applicationActivity.getLayoutInflater();
+	View layout = inflater.inflate(R.layout.layout_toast_erreur,
+			(ViewGroup) _applicationActivity.findViewById(R.id.layoutRoot));
+
+	TextView tv = (TextView) layout.findViewById(R.id.textViewTextErreur);
+	String m = String.format(tv.getText().toString(), message);
+	tv.setText(m);
+
+	m = e.getLocalizedMessage();
+	int nbMax = 0;
+	for (StackTraceElement s : e.getStackTrace())
+	{
+		m += "\n" + (s.getClassName() + '/' + s.getMethodName() + ':' + s.getLineNumber());
+		nbMax++;
+		if (nbMax > 2)
+			break;
+	}
+
+	((TextView) layout.findViewById(R.id.textViewStackTrace)).setText(m);
+	Toast toast = new Toast(_applicationActivity.getApplicationContext());
+	toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+	toast.setDuration(Toast.LENGTH_LONG);
+	toast.setView(layout);
+	toast.show();      */
+	Toast.makeText(_applicationActivity.getApplicationContext(), message, Toast.LENGTH_LONG).show();
+
+}
+
+public static void MessageNotification(View v, String message)
+{
+	Snackbar.make(v, message, Snackbar.LENGTH_LONG).show();
+}
 
 private void onInfoFromService(Intent intent)
 {
 	_adapterProfils.changeCursor(ProfilsDatabase.getInstance(this).getCursor());
 }
 
+@Override
+protected void onDestroy()
+{
+	unregisterReceiver(receiver);
+	super.onDestroy();
+}
 
 @Override
 /***
@@ -75,10 +121,10 @@ private void onInfoFromService(Intent intent)
  */
 protected void onCreate(Bundle savedInstanceState)
 {
-	//setTheme(R.style.AppTheme2);
+	Utils.setTheme(this);
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_main);
-
+	Report.Init(this);
 	Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 	setSupportActionBar(toolbar);
 
@@ -94,14 +140,16 @@ protected void onCreate(Bundle savedInstanceState)
 	});
 
 	IntentFilter filter = new IntentFilter();
-	filter.addAction(ProfilsAdapter.ACTION_LANCE_SAUVEGARDE);
+	filter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
 	filter.addAction(EditProfileActivity.ACTION_EDIT_PROFIL_FINISHED);
-	filter.addAction(Sauvegarde.ACTION_INFOS_FROM_SAUVEGARDE);
+	filter.addAction(AsyncSauvegarde.ACTION_ASYNCSAVE);
 	registerReceiver(receiver, filter);
 
 	InitProfils();
-}
 
+	Plannificateur p = new Plannificateur(this);
+	p.plannifieSauvegarde();
+}
 
 @Override
 public boolean onCreateOptionsMenu(Menu menu)
@@ -136,7 +184,7 @@ public boolean onOptionsItemSelected(MenuItem item)
 		}
 		case R.id.action_report:
 		{
-			Intent intent = new Intent(MainActivity.this, RapportActivity.class);
+			Intent intent = new Intent(MainActivity.this, ReportActivity.class);
 			startActivityForResult(intent, RESULT_REPORT);
 			return true;
 		}
@@ -155,7 +203,7 @@ public boolean onOptionsItemSelected(MenuItem item)
 		case R.id.action_nouveau_profil:
 			Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
 			startActivityForResult(intent, RESULT_EDIT_PROFIL);
-			break ;
+			break;
 	}
 
 	return super.onOptionsItemSelected(item);
@@ -180,6 +228,7 @@ private void InitProfils()
 		{
 			view.setSelected(true);
 			_currentItemSelected = position;
+			parent.showContextMenuForChild(view);
 			//ModifieProfil();
 		}
 	});
@@ -194,42 +243,6 @@ private void InitProfils()
 			return false;
 		}
 	});
-}
-
-/***
- * Signaler une erreur
- *
- * @param message
- * @param e
- */
-
-static public void SignaleErreur(String message, Exception e)
-{
-	LayoutInflater inflater = _applicationActivity.getLayoutInflater();
-	View layout = inflater.inflate(R.layout.layout_toast_erreur,
-			(ViewGroup) _applicationActivity.findViewById(R.id.layoutRoot));
-
-	TextView tv = (TextView) layout.findViewById(R.id.textViewTextErreur);
-	String m = String.format(tv.getText().toString(), message);
-	tv.setText(m);
-
-	m = e.getLocalizedMessage();
-	int nbMax = 0;
-	for (StackTraceElement s : e.getStackTrace())
-	{
-		m += "\n" + (s.getClassName() + '/' + s.getMethodName() + ':' + s.getLineNumber());
-		nbMax++;
-		if (nbMax > 2)
-			break;
-	}
-
-	((TextView) layout.findViewById(R.id.textViewStackTrace)).setText(m);
-	Toast toast = new Toast(_applicationActivity.getApplicationContext());
-	toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-	toast.setDuration(Toast.LENGTH_LONG);
-	toast.setView(layout);
-	toast.show();
-
 }
 
 /**
@@ -288,8 +301,16 @@ public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMen
 	super.onCreateContextMenu(menu, v, menuInfo);
 	if (v.getId() == R.id.listView)
 	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.menu_liste, menu);
+		if (_currentItemSelected != -1)
+		{
+			Profil profil = _adapterProfils.get(_currentItemSelected);
+			if (profil != null)
+			{
+				MenuInflater inflater = getMenuInflater();
+				menu.setHeaderTitle(profil.Nom);
+				inflater.inflate(R.menu.menu_liste, menu);
+			}
+		}
 	}
 }
 
@@ -304,6 +325,18 @@ public boolean onContextItemSelected(MenuItem item)
 		case R.id.action_supprimer:
 			SupprimeProfil();
 			return true;
+
+		case R.id.action_sauver_maintenant:
+		{
+			if (_currentItemSelected != -1)
+			{
+				Profil profil = _adapterProfils.get(_currentItemSelected);
+				if (profil != null)
+					lancerSauvegardeProfil(profil.Id);
+			}
+			return true;
+
+		}
 		default:
 			return super.onContextItemSelected(item);
 	}
@@ -365,7 +398,6 @@ private void ModifieProfil()
 	startActivityForResult(intent, RESULT_EDIT_PROFIL);
 }
 
-
 /**
  * Dispatch onResume() to fragments.  Note that for better inter-operation
  * with older versions of the platform, at the point of this call the
@@ -379,16 +411,26 @@ private void ModifieProfil()
 protected void onResume()
 {
 	super.onResume();
-	_adapterProfils.changeCursor(ProfilsDatabase.getInstance(this).getCursor());
-
-	Preferences pref = new Preferences(this);
-	if ( pref.getSauvegarderAuto())
+	if (AsyncSauvegarde.enCours(this))
 	{
-		Plannificateur p = new Plannificateur(this);
-		((TextView)findViewById(R.id.textViewStatusSauvegardePlannifiee)).setText(p.getTextProchaineSauvegarde(null));
+		// Aller directement sur l'activity "Sauvegarde en cours"
+		Intent intent = new Intent(this, SauvegardeEnCoursActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
 	}
 	else
-		((TextView)findViewById(R.id.textViewStatusSauvegardePlannifiee)).setText("Pas de sauvegarde automatique plannifiée");
+	{
+		_adapterProfils.changeCursor(ProfilsDatabase.getInstance(this).getCursor());
+
+		Preferences pref = new Preferences(this);
+		if (pref.getSauvegarderAuto())
+		{
+			Plannificateur p = new Plannificateur(this);
+			((TextView) findViewById(R.id.textViewStatusSauvegardePlannifiee)).setText(p.getTextProchaineSauvegarde(null));
+		}
+		else
+			((TextView) findViewById(R.id.textViewStatusSauvegardePlannifiee)).setText("Pas de sauvegarde automatique plannifiée");
+	}
 }
 
 /***
@@ -401,7 +443,11 @@ private void lancerSauvegardeProfil(Intent intent)
 	int Id = intent.getIntExtra(ProfilsAdapter.PARAM_ID, -1);
 	if (Id == -1)
 		return;
+	lancerSauvegardeProfil(Id);
+}
 
+private void lancerSauvegardeProfil(int Id)
+{
 	// Ouvrir l'activity "Sauvegarde en cours
 	Intent intentForResult = new Intent(MainActivity.this, SauvegardeEnCoursActivity.class);
 	intentForResult.putExtra(SauvegardeEnCoursActivity.PARAM_ID, Id);
@@ -415,13 +461,8 @@ private void lancerSauvegardeTout()
 {
 	// Ouvrir l'activity "Sauvegarde en cours
 	Intent intentForResult = new Intent(MainActivity.this, SauvegardeEnCoursActivity.class);
-	intentForResult.putExtra(SauvegardeEnCoursActivity.PARAM_ID, Sauvegarde.TOUS_LES_PROFILS);
+	intentForResult.putExtra(SauvegardeEnCoursActivity.PARAM_ID, AsyncSauvegarde.TOUS_LES_PROFILS);
 	startActivityForResult(intentForResult, RESULT_LANCE_SAUVEGARDE);
-}
-
-public static void MessageNotification(View v, String message)
-{
-	Snackbar.make(v, message, Snackbar.LENGTH_LONG).show();
 }
 
 }
