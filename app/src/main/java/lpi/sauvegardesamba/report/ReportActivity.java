@@ -61,7 +61,6 @@ protected void onCreate(Bundle savedInstanceState)
 		@Override
 		public void onClick(View view)
 		{
-			int current = mViewPager.getCurrentItem();
 			Fragment f = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
 			if (f != null && f instanceof ReportFragment)
 				((ReportFragment) f).Vide();

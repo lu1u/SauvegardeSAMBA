@@ -19,6 +19,9 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
 
+    <style name="MonTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="MonTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
     <style name="MyTabLayoutTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textAllCaps">false</item>
     </style>
@@ -63,8 +66,12 @@
         <item name="couleurHint">@color/couleurHint5</item>
     </style>
 
-    <style name="MonTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-
-    <style name="MonTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="Theme6" parent="AppTheme.NoActionBar">
+        <item name="colorPrimary">@color/primary6</item>
+        <item name="colorPrimaryDark">@color/primary_dark6</item>
+        <item name="colorAccent">@color/accent6</item>
+        <item name="tintIcones">@color/primary6</item>
+        <item name="couleurHint">@color/couleurHint6</item>
+    </style>
 
 </resources>

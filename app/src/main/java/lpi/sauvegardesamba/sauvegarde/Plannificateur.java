@@ -41,7 +41,7 @@ public Plannificateur(Context context)
 @Nullable
 static public Calendar getProchaineSauvegarde(Context c)
 {
-	Preferences pref = new Preferences(c);
+	Preferences pref = Preferences.getInstance(c);
 	boolean bActivee = pref.getSauvegarderAuto();
 
 	if (!bActivee)

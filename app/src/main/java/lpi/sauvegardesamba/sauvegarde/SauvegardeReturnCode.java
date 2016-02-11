@@ -1,6 +1,7 @@
 package lpi.sauvegardesamba.sauvegarde;
 
 /**
+ * Codes de retour de la sauvegarde
  * Created by lucien on 03/02/2016.
  */
 public enum SauvegardeReturnCode

@@ -92,6 +92,8 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
                 <action android:name="lpi.SAMBAckup.widgetclic"/>
                 <action android:name="lpi.SAMBAckup.AsyncSave"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="lpi.SAMBAckup.AsyncSave"/>
             </intent-filter>
 
             <meta-data

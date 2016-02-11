@@ -15,7 +15,6 @@ private static final String PREF_SAUVEGARDE_EN_COURS = "SauvegardeEnCours"; //$N
 private static final String PREF_SAUVEGARDE_AUTO_HEURE = "HeureAutomatique.Heure"; //$NON-NLS-1$
 private static final String PREF_SAUVEGARDE_AUTO_MINUTE = "HeureAutomatique.Minute"; //$NON-NLS-1$
 private static final String PREF_SAUVEGARDE_AUTO_ACTIVEE = "SauvegardeAutomatique"; //$NON-NLS-1$
-private static final String PREF_RAPPORT_DERNIERE_SAUVEGARDE = "Rapport"; //$NON-NLS-1$
 private static final String PREF_REPERTOIRE_SAUVEGARDE = "Repertoire.Sauvegarde"; //$NON-NLS-1$
 private static final String PREF_REPERTOIRE_CONTACTS = "Repertoire.Contacts";
 private static final String PREF_REPERTOIRE_APPELS = "Repertoire.Appels";
@@ -28,13 +27,26 @@ private static final String PREF_REGROUPER_MESSAGES = "Regrouper.Messages";
 private static final String PREF_REGROUPER_PHOTOS   = "Regrouper.Photos";
 private static final String PREF_REGROUPER_VIDEOS   = "Regrouper.Videos";
 private static final String PREF_THEME = "Theme";
+private static Preferences INSTANCE = null;
 private SharedPreferences _preferences;
 private SharedPreferences.Editor _editor;
 
-public Preferences(Context c)
+private Preferences(Context context)
 {
-	_preferences = c.getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE);
+	_preferences = context.getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE);
 	_editor = null;
+}
+
+/**
+ * Point d'accès pour l'instance unique du singleton
+ */
+public static synchronized Preferences getInstance(Context context)
+{
+	if (INSTANCE == null)
+	{
+		INSTANCE = new Preferences(context);
+	}
+	return INSTANCE;
 }
 
 @Override
@@ -60,6 +72,7 @@ public void putLong(String name, long v)
 		_editor = _preferences.edit();
 
 	_editor.putLong(name, v);
+	_editor.commit();
 }
 
 
@@ -69,6 +82,7 @@ public void putString(String name, String s)
 		_editor = _preferences.edit();
 
 	_editor.putString(name, s);
+	_editor.commit();
 }
 
 public void putInt(String name, int i)
@@ -77,6 +91,7 @@ public void putInt(String name, int i)
 		_editor = _preferences.edit();
 
 	_editor.putInt(name, i);
+	_editor.commit();
 }
 
 public void putBool(String name, boolean b)
@@ -85,6 +100,7 @@ public void putBool(String name, boolean b)
 		_editor = _preferences.edit();
 
 	_editor.putBoolean(name, b);
+	_editor.commit();
 }
 
 public boolean getSauvegardeEnCours()
@@ -97,15 +113,6 @@ public void setSauvegardeEnCours(boolean b)
 	putBool(PREF_SAUVEGARDE_EN_COURS, b);
 }
 
-public String getRapport()
-{
-	return _preferences.getString(PREF_RAPPORT_DERNIERE_SAUVEGARDE, PREF_NON_INITIALISEE);
-}
-
-public void setRapport(String s)
-{
-	putString(PREF_RAPPORT_DERNIERE_SAUVEGARDE, s);
-}
 
 public int getSauvegardeAutoHeure()
 {

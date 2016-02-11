@@ -7,6 +7,7 @@ import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.utils.Preferences;
 
 /**
+ * Factory pour les videos
  * Created by lucien on 04/02/2016.
  */
 public class VideosFactory extends SavedObjectFactory
@@ -20,7 +21,7 @@ protected boolean objetsActifs(Profil profil)
 @Override
 protected boolean regrouperObjets(Context context)
 {
-	Preferences pref = new Preferences(context);
+	Preferences pref = Preferences.getInstance(context);
 	return pref.getRegrouperVideos();
 }
 
@@ -50,7 +51,7 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 @Override
 protected String getRepertoireObjets(Context context)
 {
-	Preferences pref = new Preferences(context);
+	Preferences pref = Preferences.getInstance(context);
 	return pref.getPrefRepertoireVideos();
 }
 

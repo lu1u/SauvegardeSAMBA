@@ -20,6 +20,7 @@ import lpi.sauvegardesamba.sauvegarde.SauvegardeReturnCode;
 import lpi.sauvegardesamba.utils.Report;
 
 /**
+ * Classe de base pour les objets sauvegardes
  * Created by lucien on 29/01/2016.
  */
 public abstract class SavedObject
@@ -40,7 +41,7 @@ public static String Combine(String partage, String path)
 		return partage + "/" + path;
 }
 
-static public String getExtension(String absolutePath)
+static public String getExtension(@NonNull String absolutePath)
 {
 	return MimeTypeMap.getFileExtensionFromUrl(absolutePath);
 }
@@ -86,9 +87,7 @@ public static String getContact(Context a, String numero)
 	try
 	{
 		Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(numero));
-		c = a.getContentResolver().query(
-				Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-						Uri.encode(numero)),
+		c = a.getContentResolver().query(uri,
 				new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
 		if (c != null)
 		{
@@ -113,7 +112,7 @@ public static String getContact(Context a, String numero)
 
 }
 
-public static String sqliteDateToString(Context context, long l)
+public static String sqliteDateToString(@NonNull Context context, long l)
 {
 	try
 	{
@@ -154,25 +153,24 @@ public static String sqliteDurationToString(Context context, long l)
 		l /= 60;
 		int heures = (int) l;
 
-		return String.format("%1$02dh %2$02dm %3$02ds", Integer.valueOf(heures),
-				Integer.valueOf(minutes), Integer.valueOf(secondes));
+		return String.format("%1$02dh %2$02dm %3$02ds", heures, minutes, secondes);
 	} catch (Exception e)
 	{
 		return l + " (format de date non reconnue)"; //$NON-NLS-1$
 	}
 }
 
-public static long copyLarge(InputStream input, OutputStream output) throws IOException
+public static void copyLarge(InputStream input, OutputStream output) throws IOException
 {
 	byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-	long count = 0;
-	int n = 0;
+	//long count = 0;
+	int n;
 	while (-1 != (n = input.read(buffer)))
 	{
 		output.write(buffer, 0, n);
-		count += n;
+		//count += n;
 	}
-	return count;
+	//return count;
 }
 
 public abstract SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws Exception;
@@ -182,17 +180,16 @@ public boolean quelqueChoseASauvegarder()
 	return true;
 }
 
-public abstract String Nom(Context context);
+public abstract String Nom(@NonNull Context context);
 
 /***
  * @return
  */
-protected SmbFile getDestFile(SmbFile smbRoot, String categorie, Report report, NtlmPasswordAuthentication authentication)
+@NonNull
+protected SmbFile getDestFile(@NonNull SmbFile smbRoot, @NonNull String categorie, @NonNull Report report, NtlmPasswordAuthentication authentication)
 {
 	String path = smbRoot.getCanonicalPath();
-
-	if (categorie != null)
-		path = Combine(path, categorie);
+	path = Combine(path, categorie);
 
 	try
 	{
@@ -203,8 +200,8 @@ protected SmbFile getDestFile(SmbFile smbRoot, String categorie, Report report, 
 		return smbf;
 	} catch (Exception e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, "création du répertoire de sauvegarde " + path);
-		Report.Log(Report.NIVEAU.ERROR, e);
+		report.log(Report.NIVEAU.ERROR, "création du répertoire de sauvegarde " + path);
+		report.log(Report.NIVEAU.ERROR, e);
 		return smbRoot;
 	}
 }

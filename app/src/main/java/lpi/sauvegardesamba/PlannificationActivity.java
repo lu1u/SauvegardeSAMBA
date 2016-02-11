@@ -38,7 +38,6 @@ private CheckBox _detectionWIFI;
 private TextView _textProchaineSauvegarde;
 private Preferences _pref;
 private int _Heure, _Minute;
-private boolean _moderne = true;
 @Override
 protected void onCreate(Bundle savedInstanceState)
 {
@@ -50,7 +49,7 @@ protected void onCreate(Bundle savedInstanceState)
 	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	getSupportActionBar().setDisplayShowTitleEnabled(true);
 
-	_pref = new Preferences(this);
+	_pref = Preferences.getInstance(this);
 	// Inflate the layout for this fragment
 	TimePicker p = (TimePicker) findViewById(R.id.timePicker);
 	p.setIs24HourView(DateFormat.is24HourFormat(this));

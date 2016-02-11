@@ -1,6 +1,9 @@
 package lpi.sauvegardesamba.utils;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -87,7 +90,7 @@ private static void displayToastAboveButton(Activity a, View v, String message)
 
 public static void setTheme(Activity a)
 {
-	Preferences p = new Preferences(a);
+	Preferences p = Preferences.getInstance(a);
 	switch (p.getTheme())
 	{
 
@@ -107,11 +110,25 @@ public static void setTheme(Activity a)
 			a.setTheme(R.style.Theme5);
 			break;
 
+		case 5:
+			a.setTheme(R.style.Theme6);
+			break;
 		case 0:
 		default:
 			a.setTheme(R.style.Theme1);
 			break;
 
 	}
+}
+
+public static Bitmap getBitmap(Context context, int resId)
+{
+	/*
+}
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+		return context.getResources().getDrawable(resId, context.getApplicationContext().getTheme());
+else
+		return context.getResources().getDrawable(resId);      */
+	return BitmapFactory.decodeResource(context.getResources(), resId);
 }
 }

@@ -6,7 +6,6 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -107,11 +106,11 @@ public static Cursor getList(Context context)
 	Cursor cursor = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, _colonneS_CONTACT, null, null, null);
 	try
 	{
-		_colonneID = cursor.getColumnIndex(BaseColumns._ID);
-		_colonneDisplayName = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-		_colonneHasPhoneNumber = cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER);
-		_colonneTimesUpdated = cursor.getColumnIndex(ContactsContract.Contacts.TIMES_CONTACTED);
-		_colonneLastContacted = cursor.getColumnIndex(ContactsContract.Contacts.LAST_TIME_CONTACTED);
+		_colonneID = cursor.getColumnIndexOrThrow(BaseColumns._ID);
+		_colonneDisplayName = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME);
+		_colonneHasPhoneNumber = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER);
+		_colonneTimesUpdated = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.TIMES_CONTACTED);
+		_colonneLastContacted = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.LAST_TIME_CONTACTED);
 	} catch (Exception e)
 	{
 		return null;
@@ -121,7 +120,7 @@ public static Cursor getList(Context context)
 }
 
 @Override
-public String Nom(Context context)
+public String Nom(@NonNull Context context)
 {
 	return _nom;
 }
@@ -146,12 +145,13 @@ public String getFileName(Context context)
  *
  * @throws IOException
  */
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
+public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
+	Report report = Report.getInstance(context);
 	// Path de cet appel
 	String path = smbRoot.getCanonicalPath();
 	String contactPath = SavedObject.Combine(path, getFileName(context));
-	Log.d("SAVE", "Contact path:" + path);
+	report.log(Report.NIVEAU.DEBUG, "Contact path:" + path);
 	SmbFile contactSmbFile = new SmbFile(contactPath, authentification);
 	SmbFileOutputStream sops = null;
 
@@ -168,6 +168,8 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPas
 				sops.write(("Contacté la dernière fois: " + sqliteDateHourToString(context, _lastContacted) + "\n").getBytes());
 			} catch (NumberFormatException e)
 			{
+				report.log(Report.NIVEAU.ERROR, "Erreur lors de l'ecriture du contact" + _nom);
+				report.log(Report.NIVEAU.ERROR, e);
 			}
 		}
 
@@ -186,8 +188,8 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPas
 		}
 	} catch (IOException e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde du ic_contact " + _nom);
-		Report.Log(Report.NIVEAU.ERROR, e);
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde du ic_contact " + _nom);
+		report.log(Report.NIVEAU.ERROR, e);
 		return SauvegardeReturnCode.ERREUR_CREATION_FICHIER;
 	} finally
 	{

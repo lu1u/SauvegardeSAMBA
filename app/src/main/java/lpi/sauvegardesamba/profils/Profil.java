@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import java.util.Calendar;
 
@@ -38,7 +39,7 @@ public String MotDePasse;
 public String Partage;
 public int IntegrationSauvegardeAuto = ProfilsDatabase.S_AUTO_WIFI;
 public boolean Appels = true;
-static public ProfilFieldInverser inverseAppels = new ProfilFieldInverser()
+static final public ProfilFieldInverser inverseAppels = new ProfilFieldInverser()
 {
 	@Override
 	public void InverseField(Profil profil)
@@ -53,7 +54,7 @@ static public ProfilFieldInverser inverseAppels = new ProfilFieldInverser()
 	}
 };
 public boolean Contacts = true;
-static public ProfilFieldInverser inverseContacts = new ProfilFieldInverser()
+static final public ProfilFieldInverser inverseContacts = new ProfilFieldInverser()
 {
 	@Override
 	public void InverseField(Profil profil)
@@ -68,7 +69,7 @@ static public ProfilFieldInverser inverseContacts = new ProfilFieldInverser()
 	}
 };
 public boolean Messages = true;
-static public ProfilFieldInverser inverseMessages = new ProfilFieldInverser()
+static final public ProfilFieldInverser inverseMessages = new ProfilFieldInverser()
 {
 	@Override
 	public void InverseField(Profil profil)
@@ -83,7 +84,7 @@ static public ProfilFieldInverser inverseMessages = new ProfilFieldInverser()
 	}
 };
 public boolean Photos = true;
-static public ProfilFieldInverser inversePhotos = new ProfilFieldInverser()
+static final public ProfilFieldInverser inversePhotos = new ProfilFieldInverser()
 {
 	@Override
 	public void InverseField(Profil profil)
@@ -98,7 +99,7 @@ static public ProfilFieldInverser inversePhotos = new ProfilFieldInverser()
 	}
 };
 public boolean Videos = true;
-static public ProfilFieldInverser inverseVideos = new ProfilFieldInverser()
+static final public ProfilFieldInverser inverseVideos = new ProfilFieldInverser()
 {
 	@Override
 	public void InverseField(Profil profil)
@@ -114,9 +115,9 @@ static public ProfilFieldInverser inverseVideos = new ProfilFieldInverser()
 };
 public int DerniereSauvegarde;
 
-
 public Profil()
 {
+
 }
 
 public Profil(int id, String nom, int integrationsauvegardeauto, String utilisateur, String motdepasse, String partage, boolean appels, boolean contacts, boolean messages, boolean photos, boolean videos, int derniereSauvegarde)
@@ -205,13 +206,14 @@ public void Copie(Profil p)
  */
 public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 {
-	Report.Log(Report.NIVEAU.DEBUG, "Sauvegarde du profil: " + Nom);
+	Report report = Report.getInstance(context);
+	report.log(Report.NIVEAU.DEBUG, "Sauvegarde du profil: " + Nom);
 
 	if (IntegrationSauvegardeAuto == ProfilsDatabase.S_AUTO_WIFI)
 	{
 		if (!IsWifiConnected(context))
 		{
-			Report.historique(Nom + ": non connecté au WIFI, annulé");
+			report.historique(Nom + ": non connecté au WIFI, annulé");
 			//dlg.notification(context.getString(R.string.non_connecte_wifi));
 			return;
 		}
@@ -219,12 +221,12 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 
 	if ((dlg._type == AsyncSauvegardeManager.TYPE_LAUNCHED.AUTO) && (IntegrationSauvegardeAuto == ProfilsDatabase.S_JAMAIS))
 	{
-		Report.historique(Nom + " non actif lors des sauvegardes automatiques");
+		report.historique(Nom + " non actif lors des sauvegardes automatiques");
 		//dlg.notification(context.getString(R.string.desactive_sauvegarde_auto));
 		return;
 	}
-	Report.Log(Report.NIVEAU.DEBUG, "Chemin de la sauvegarde:" + Partage);
-	String path = SavedObject.Combine("smb://" + Partage, new Preferences(context).getPrefRepertoireSauvegarde());
+	report.log(Report.NIVEAU.DEBUG, "Chemin de la sauvegarde:" + Partage);
+	String path = SavedObject.Combine("smb://" + Partage, Preferences.getInstance(context).getPrefRepertoireSauvegarde());
 	NtlmPasswordAuthentication authentification = new NtlmPasswordAuthentication(null, Utilisateur, MotDePasse);
 
 	try
@@ -234,9 +236,9 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 			sFile.mkdir();
 	} catch (Exception e)
 	{
-		Report.historique(Nom + " erreur lors de la création du répertoire");
-		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire (repertoire non accessible?)" + path);
-		Report.Log(Report.NIVEAU.ERROR, e);
+		report.historique(Nom + " erreur lors de la création du répertoire");
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire (repertoire non accessible?)" + path);
+		report.log(Report.NIVEAU.ERROR, e);
 		return;
 	}
 
@@ -271,11 +273,11 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 	ProfilsDatabase.getInstance(context).ChangeDate(Id, DerniereSauvegarde);
 	if (dlg.isCanceled())
 	{
-		Report.Log(Report.NIVEAU.WARNING, "Sauvegarde annulée par l'utilisateur");
-		Report.historique(Nom + " annulé par l'utilisateur");
+		report.log(Report.NIVEAU.WARNING, "Sauvegarde annulée par l'utilisateur");
+		report.historique(Nom + " annulé par l'utilisateur");
 	}
 	else
-		Report.historique(Nom + (erreur ? "Erreur détectée" : "Sauvegarde terminée correctement"));
+		report.historique(Nom + (erreur ? "Erreur détectée" : "Sauvegarde terminée correctement"));
 }
 
 private boolean Nok(SauvegardeReturnCode sauvegardeReturnCode)
@@ -301,13 +303,13 @@ private SauvegardeReturnCode SauvegardeObjets(SavedObjectFactory factory, Contex
 		case ERREUR_COPIE:
 		case IMPOSSIBLE_CREER_REPERTOIRE:
 		case ERREUR_CREATION_FICHIER:
-			Report.Log(Report.NIVEAU.DEBUG, "Erreur detectée");
+			Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Erreur detectée");
 			break;
 	}
 	return res;
 }
 
-public void toContentValues(ContentValues content, boolean putId)
+public void toContentValues(@NonNull ContentValues content, boolean putId)
 {
 	if (putId)
 		content.put(DatabaseHelper.COLUMN_ID, Id);
@@ -324,7 +326,7 @@ public void toContentValues(ContentValues content, boolean putId)
 	content.put(DatabaseHelper.COLUMN_DERNIERE_SAUVEGARDE, DerniereSauvegarde);
 }
 
-public void toBundle(Bundle bundle)
+public void toBundle(@NonNull Bundle bundle)
 {
 	bundle.putInt(DatabaseHelper.COLUMN_ID, Id);
 	bundle.putString(DatabaseHelper.COLUMN_NOM, Nom);
@@ -340,7 +342,7 @@ public void toBundle(Bundle bundle)
 	bundle.putLong(DatabaseHelper.COLUMN_DERNIERE_SAUVEGARDE, DerniereSauvegarde);
 }
 
-public String getDerniereSauvegarde(Context context)
+public String getDerniereSauvegarde(@NonNull Context context)
 {
 	if (DerniereSauvegarde == 0)
 		return "Jamais";

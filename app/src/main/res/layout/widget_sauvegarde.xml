@@ -13,13 +13,17 @@
     android:scaleType="centerCrop">
 
     <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/imageView"
+        android:layout_width="@dimen/taille_icone_widget"
+        android:layout_height="@dimen/taille_icone_widget"
         android:layout_gravity="center"
         android:backgroundTintMode="screen"
+        android:maxHeight="@dimen/taille_icone_widget"
+        android:maxWidth="@dimen/taille_icone_widget"
+        android:minHeight="@dimen/taille_icone_widget"
+        android:minWidth="@dimen/taille_icone_widget"
         android:scaleType="center"
-        android:src="@mipmap/ic_launcher"/>
+        android:src="@mipmap/ic_play"/>
 
     <TextView
         android:id="@+id/textViewProfil"
@@ -43,15 +47,17 @@
 
     <ProgressBar
         android:id="@+id/progressBarWidget"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/taille_icone_widget"
+        android:layout_height="@dimen/taille_icone_widget"
         android:layout_gravity="center"
 
         android:indeterminate="true"
         android:indeterminateBehavior="cycle"
         android:indeterminateOnly="true"
-        android:minHeight="62dp"
-        android:minWidth="62dp"
+        android:maxHeight="@dimen/taille_icone_widget"
+        android:maxWidth="@dimen/taille_icone_widget"
+        android:minHeight="@dimen/taille_icone_widget"
+        android:minWidth="@dimen/taille_icone_widget"
         android:progressDrawable="@drawable/progress_widget"
         android:visibility="gone"/>
 

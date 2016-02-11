@@ -21,8 +21,6 @@ public class ProfilsAdapter extends CursorAdapter
 {
 static public final String ACTION_LANCE_SAUVEGARDE = "lpi.sauvegardeSamba.LanceSauvegardeProfil";
 static public final String PARAM_ID = "Id";
-public static final String PARAM_ITEM_VIEW = "View";
-private static final int KEY_ID = 0;
 private Context _context;
 
 
@@ -159,7 +157,6 @@ public Profil get(int position)
 {
 	Cursor cursor = getCursor();
 
-	Profil profilDuCurseur = null;
 	if (cursor.moveToPosition(position))
 		return new Profil(cursor);
 	return null;

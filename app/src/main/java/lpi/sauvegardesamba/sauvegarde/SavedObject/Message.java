@@ -44,14 +44,14 @@ public Message(Cursor cursor, Context context)
 static Cursor getList(Context context)
 {
 	Uri u = Uri.parse("content://sms");
-	Cursor cursor = null;
+	Cursor cursor;
 	try
 	{
 		cursor = context.getContentResolver().query(u, null, null, null, null);
-		COLONNE_DATE = cursor.getColumnIndex(Telephony.Sms.DATE);
-		COLONNE_EXPEDITEUR = cursor.getColumnIndex(Telephony.Sms.ADDRESS);
-		COLONNE_TEXTE = cursor.getColumnIndex(Telephony.Sms.BODY);
-		COLONNE_TYPE = cursor.getColumnIndex(Telephony.Sms.TYPE);
+		COLONNE_DATE = cursor.getColumnIndexOrThrow(Telephony.Sms.DATE);
+		COLONNE_EXPEDITEUR = cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS);
+		COLONNE_TEXTE = cursor.getColumnIndexOrThrow(Telephony.Sms.BODY);
+		COLONNE_TYPE = cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE);
 	} catch (Exception e)
 	{
 		return null;
@@ -84,7 +84,7 @@ public String getFileName(Context context)
 	return cleanFileName(res) + ".txt";
 }
 
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
+public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
 	String path = smbRoot.getCanonicalPath();
 	String messagePath = SavedObject.Combine(path, getFileName(context));
@@ -116,15 +116,16 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPas
 		return SauvegardeReturnCode.OK;
 	} catch (IOException e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde du message " + sqliteDateHourToString(context, _date) + " : " + _expediteur);
-		Report.Log(Report.NIVEAU.ERROR, e);
+		Report report = Report.getInstance(context);
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde du message " + sqliteDateHourToString(context, _date) + " : " + _expediteur);
+		report.log(Report.NIVEAU.ERROR, e);
 		return SauvegardeReturnCode.ERREUR_CREATION_FICHIER;
 	}
 }
 
 
 @Override
-public String Nom(Context context)
+public String Nom(@NonNull Context context)
 {
 	String res = "[" + sqliteDateHourToString(context, _date) + "]";
 

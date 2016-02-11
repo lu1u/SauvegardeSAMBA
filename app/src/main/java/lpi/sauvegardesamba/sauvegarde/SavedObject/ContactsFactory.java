@@ -53,7 +53,7 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 @NonNull
 protected String getRepertoireObjets(Context context)
 {
-	Preferences pref = new Preferences(context);
+	Preferences pref = Preferences.getInstance(context);
 	return pref.getPrefRepertoireContacts();
 }
 

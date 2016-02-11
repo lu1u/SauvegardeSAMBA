@@ -22,7 +22,7 @@ protected boolean objetsActifs(Profil profil)
 @Override
 protected boolean regrouperObjets(Context context)
 {
-	Preferences pref = new Preferences(context);
+	Preferences pref = Preferences.getInstance(context);
 	return pref.getRegrouperAppels();
 }
 
@@ -51,9 +51,9 @@ protected String getMessage(MESSAGES message, Object... arguments)
 }
 
 @Override
-protected String getRepertoireObjets(Context context)
+protected String getRepertoireObjets(@NonNull Context context)
 {
-	Preferences pref = new Preferences(context);
+	Preferences pref = Preferences.getInstance(context);
 	return pref.getPrefRepertoireAppels();
 }
 
@@ -65,7 +65,7 @@ protected Cursor getList(Context context)
 }
 
 @Override
-protected SavedObject creerObjet(Cursor cursor, Context context)
+protected SavedObject creerObjet(@NonNull Cursor cursor, Context context)
 {
 	return new Appel(cursor, context );
 }

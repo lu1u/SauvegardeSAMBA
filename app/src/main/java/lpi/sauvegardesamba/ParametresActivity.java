@@ -36,7 +36,7 @@ protected void onCreate(Bundle savedInstanceState)
 	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	getSupportActionBar().setDisplayShowTitleEnabled(true);
 
-	Preferences pref = new Preferences(this);
+	Preferences pref = Preferences.getInstance(this);
 	((EditText) findViewById(R.id.editTextRepertoireSauvegarde)).setText(pref.getPrefRepertoireSauvegarde());
 	((EditText) findViewById(R.id.editTextContacts)).setText(pref.getPrefRepertoireContacts());
 	((EditText) findViewById(R.id.editTextAppels)).setText(pref.getPrefRepertoireAppels());
@@ -55,7 +55,7 @@ protected void onCreate(Bundle savedInstanceState)
 	ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.themes, android.R.layout.simple_spinner_item);
 	adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	spinner.setAdapter(adapter);
-	_theme = new Preferences(this).getTheme();
+	_theme = Preferences.getInstance(this).getTheme();
 	spinner.setSelection(_theme);
 	spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
 	{
@@ -63,7 +63,7 @@ protected void onCreate(Bundle savedInstanceState)
 		public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
 		{
 			Activity a = ParametresActivity.this;
-			Preferences pref = new Preferences(a);
+			Preferences pref = Preferences.getInstance(a);
 			if (position != pref.getTheme())
 			{
 				_theme = position;
@@ -147,7 +147,7 @@ public void onOK()
 
 	if (erreur)
 		return;
-	Preferences pref = new Preferences(this);
+	Preferences pref = Preferences.getInstance(this);
 	pref.setPrefRepertoireSauvegarde(((EditText) findViewById(R.id.editTextRepertoireSauvegarde)).getText().toString());
 	pref.setPrefRepertoireContacts(((EditText) findViewById(R.id.editTextContacts)).getText().toString());
 	pref.setPrefRepertoireAppels(((EditText) findViewById(R.id.editTextAppels)).getText().toString());

@@ -59,7 +59,7 @@ public void Ajoute(int Date, int niveau, String ligne)
 	initialValues.put(DatabaseHelper.COLONNE_TRACES_LIGNE, ligne);
 	try
 	{
-		int id = (int) database.insert(DatabaseHelper.TABLE_TRACES, null, initialValues);
+		database.insert(DatabaseHelper.TABLE_TRACES, null, initialValues);
 	} catch (Exception e)
 	{
 		MainActivity.SignaleErreur("ajout d'une ligne de trace", e);

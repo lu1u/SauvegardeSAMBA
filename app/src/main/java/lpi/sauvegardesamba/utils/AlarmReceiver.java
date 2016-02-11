@@ -19,17 +19,14 @@ import lpi.sauvegardesamba.sauvegarde.Plannificateur;
  */
 public class AlarmReceiver extends BroadcastReceiver
 {
-Context _context;
 
 @Override
 public void onReceive(Context context, Intent intent)
 {
-	_context = context;
 	String action = intent.getAction();
 	if (Plannificateur.COMMANDE_SAVE_ALARM.equals(action))
 	{
 		lanceSauvegardeAuto(context);
-
 	}
 	else if ("android.intent.action.BOOT_COMPLETED".equals(action) //$NON-NLS-1$
 			|| "android.intent.action.QUICKBOOT_POWERON".equals(action)) //$NON-NLS-1$
@@ -42,9 +39,18 @@ public void onReceive(Context context, Intent intent)
 		connexionWifi(context, intent);
 }
 
+/***
+ * Detection d'un changement de connectivite, s'agit-il d'une connexion WIFI?
+ *
+ * @param context
+ * @param intent
+ */
 private void connexionWifi(Context context, Intent intent)
 {
-	Preferences pref = new Preferences(context);
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Detection du changement de reseau");
+	Preferences pref = Preferences.getInstance(context);
+
+	// Doit-on essayer de sauvegarder des qu'une connexion WIFI est detectée?
 	if (!pref.getDetectionWIFI())
 		return;
 
@@ -56,6 +62,7 @@ private void connexionWifi(Context context, Intent intent)
 
 private void lanceSauvegardeAuto(Context context)
 {
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Lancement d'une sauvegarde automatique");
 	AsyncSauvegardeManager manager = AsyncSauvegardeManager.getInstance(context);
 	manager.startSauvegarde(AsyncSauvegarde.TOUS_LES_PROFILS, AsyncSauvegardeManager.TYPE_LAUNCHED.AUTO);
 }

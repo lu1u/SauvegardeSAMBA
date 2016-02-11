@@ -19,18 +19,15 @@ import lpi.sauvegardesamba.database.DatabaseHelper;
  */
 public class HistoriqueAdapter extends CursorAdapter
 {
-Context _context;
 
 public HistoriqueAdapter(Context context, Cursor cursor)
 {
 	super(context, cursor, 0);
-	_context = context;
 }
 
 public static String formatDate(Context context, int date)
 {
-	Calendar c = Calendar.getInstance();
-	c.setTimeInMillis((long) date * 1000L);
+	Calendar c = DatabaseHelper.SQLiteDateToCalendar(date);
 	return android.text.format.DateFormat.getDateFormat(context).format(c.getTime()) + ' '
 			+ android.text.format.DateFormat.getTimeFormat(context).format(c.getTime());
 }

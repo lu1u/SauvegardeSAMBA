@@ -7,7 +7,11 @@ import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.util.Calendar;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
@@ -71,6 +75,21 @@ public DatabaseHelper(Context context)
 	super(context, DATABASE_NAME, null, DATABASE_VERSION);
 }
 
+static public int CalendarToSQLiteDate(@Nullable Calendar cal)
+{
+	if (cal == null)
+		cal = Calendar.getInstance();
+	return (int) (cal.getTimeInMillis() / 1000L);
+}
+
+@NonNull
+static public Calendar SQLiteDateToCalendar(int date)
+{
+	Calendar cal = Calendar.getInstance();
+	cal.setTimeInMillis((long) date * 1000L);
+	return cal;
+}
+
 @Override
 public void onCreate(SQLiteDatabase database)
 {
@@ -102,5 +121,4 @@ public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 		e.printStackTrace();
 	}
 }
-
 }

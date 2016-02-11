@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
-import lpi.sauvegardesamba.utils.Report;
+import lpi.sauvegardesamba.utils.Preferences;
 
 public class StartupActivity extends AppCompatActivity
 {
@@ -16,8 +16,7 @@ protected void onCreate(Bundle savedInstanceState)
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_startup);
 
-	Report.Init(this);
-
+	Preferences.getInstance(this).setSauvegardeEnCours(false);
 	if (AsyncSauvegarde.enCours(this))
 	{
 		// Aller directement sur l'activity "Sauvegarde en cours"

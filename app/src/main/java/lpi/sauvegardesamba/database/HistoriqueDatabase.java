@@ -12,10 +12,10 @@ import lpi.sauvegardesamba.MainActivity;
  */
 public class HistoriqueDatabase
 {
+private static HistoriqueDatabase INSTANCE = null;
 /**
  * Instance unique non préinitialisée
  */
-private static HistoriqueDatabase INSTANCE = null;
 private SQLiteDatabase database;
 private DatabaseHelper dbHelper;
 
@@ -58,7 +58,7 @@ public void Ajoute(int Date, String ligne)
 	initialValues.put(DatabaseHelper.COLONNE_HISTORIQUE_LIGNE, ligne);
 	try
 	{
-		int id = (int) database.insert(DatabaseHelper.TABLE_HISTORIQUE, null, initialValues);
+		database.insert(DatabaseHelper.TABLE_HISTORIQUE, null, initialValues);
 	} catch (Exception e)
 	{
 		MainActivity.SignaleErreur("ajout d'une ligne d'historique", e);

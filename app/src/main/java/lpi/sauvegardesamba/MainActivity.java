@@ -29,7 +29,6 @@ import lpi.sauvegardesamba.report.ReportActivity;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
 import lpi.sauvegardesamba.sauvegarde.Plannificateur;
 import lpi.sauvegardesamba.utils.Preferences;
-import lpi.sauvegardesamba.utils.Report;
 import lpi.sauvegardesamba.utils.Utils;
 
 public class MainActivity extends AppCompatActivity
@@ -124,7 +123,6 @@ protected void onCreate(Bundle savedInstanceState)
 	Utils.setTheme(this);
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_main);
-	Report.Init(this);
 	Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 	setSupportActionBar(toolbar);
 
@@ -360,7 +358,7 @@ private void SupprimeProfil()
 				{
 					public void onClick(DialogInterface dialog, int buttonId)
 					{
-						if (profilASupprimer != null)
+						//if (profilASupprimer != null)
 						{
 							ProfilsDatabase database = ProfilsDatabase.getInstance(MainActivity.this);
 							// Supprimer
@@ -389,13 +387,15 @@ private void ModifieProfil()
 		return;
 
 	Profil profil = _adapterProfils.get(_currentItemSelected);
-
-	Intent intent = new Intent(this, EditProfileActivity.class);
-	Bundle b = new Bundle();
-	profil.toBundle(b);
-	b.putString(EditProfileActivity.EXTRA_OPERATION, EditProfileActivity.EXTRA_OPERATION_MODIFIE);
-	intent.putExtras(b);
-	startActivityForResult(intent, RESULT_EDIT_PROFIL);
+	if (profil != null)
+	{
+		Intent intent = new Intent(this, EditProfileActivity.class);
+		Bundle b = new Bundle();
+		profil.toBundle(b);
+		b.putString(EditProfileActivity.EXTRA_OPERATION, EditProfileActivity.EXTRA_OPERATION_MODIFIE);
+		intent.putExtras(b);
+		startActivityForResult(intent, RESULT_EDIT_PROFIL);
+	}
 }
 
 /**
@@ -422,7 +422,7 @@ protected void onResume()
 	{
 		_adapterProfils.changeCursor(ProfilsDatabase.getInstance(this).getCursor());
 
-		Preferences pref = new Preferences(this);
+		Preferences pref = Preferences.getInstance(this);
 		if (pref.getSauvegarderAuto())
 		{
 			Plannificateur p = new Plannificateur(this);

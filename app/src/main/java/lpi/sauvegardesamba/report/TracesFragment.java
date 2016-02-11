@@ -1,7 +1,6 @@
 package lpi.sauvegardesamba.report;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,20 +14,9 @@ import lpi.sauvegardesamba.R;
 import lpi.sauvegardesamba.database.TracesDatabase;
 import lpi.sauvegardesamba.utils.Report;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link TracesFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link TracesFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class TracesFragment extends ReportFragment
 {
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private static final String ARG_PARAM1 = "param1";
-private static final String ARG_PARAM2 = "param2";
+
 Report.NIVEAU _niveau = Report.NIVEAU.DEBUG;
 TracesAdapter _adapter;
 // TODO: Rename and change types of parameters
@@ -59,12 +47,7 @@ public void onCreate(Bundle savedInstanceState)
 
 }
 
-/**
- * Called when the fragment is visible to the user and actively running.
- * This is generally
- * tied to {@link Activity#onResume() Activity.onResume} of the containing
- * Activity's lifecycle.
- */
+
 @Override
 public void onResume()
 {

@@ -64,6 +64,16 @@
     <color name="secondary_text5">#727272</color>
     <color name="icons5">#FFFFFF</color>
     <color name="divider5">#B6B6B6</color>
-    <color name="couleurHint5">@color/primary_light4</color>
+    <color name="couleurHint5">@color/primary_light5</color>
+
+    <color name="primary6">#FFC107</color>
+    <color name="primary_dark6">#FFA000</color>
+    <color name="primary_light6">#FFECB3</color>
+    <color name="accent6">#FF9800</color>
+    <color name="primary_tex6t">#212121</color>
+    <color name="secondary_text6">#727272</color>
+    <color name="icons6">#212121</color>
+    <color name="divider6">#B6B6B6</color>
+    <color name="couleurHint6">@color/primary_light6</color>
 
 </resources>

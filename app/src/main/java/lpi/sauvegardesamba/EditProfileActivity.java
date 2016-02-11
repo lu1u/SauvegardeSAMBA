@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -42,10 +43,11 @@ public static final String ACTION_EDIT_PROFIL_FINISHED = "lpi.EDITEPROFIL";
 public static final String EXTRA_OPERATION = "lpi.OPERATION";
 public static final String EXTRA_OPERATION_AJOUTE = "AJOUTE";
 public static final String EXTRA_OPERATION_MODIFIE = "MODIFIE";
-
-String Operation;
+// Array of Months acting as a data pump
+final String[] integrations = {"Intégration du profil aux sauvegardes automatiques", "Jamais", "Seulement par WIFI", "Toujours"};
+final int[] images = {R.drawable.ic_off, R.drawable.ic_off, R.drawable.ic_wifi, R.drawable.ic_toujours};
+String _operation;
 Profil _profil;
-
 EditText eNom;
 EditText eUtilisateur;
 EditText eMotDePasse;
@@ -56,11 +58,6 @@ CheckBox cbPhotos;
 CheckBox cbVideos;
 Button btPartage;
 TextView tvId;
-Spinner spin;
-
-// Array of Months acting as a data pump
-String[] integrations = {"Intégration du profil aux sauvegardes automatiques", "Jamais", "Seulement par WIFI", "Toujours"};
-int[] images = {R.drawable.ic_off, R.drawable.ic_off, R.drawable.ic_wifi, R.drawable.ic_toujours};
 private BroadcastReceiver receiver = new BroadcastReceiver()
 {
 	@Override
@@ -101,12 +98,12 @@ protected void onCreate(Bundle savedInstanceState)
 	if (savedInstanceState != null)
 	{
 		_profil = new Profil(savedInstanceState);
-		Operation = savedInstanceState.getString(EXTRA_OPERATION);
+		_operation = savedInstanceState.getString(EXTRA_OPERATION);
 	}
 	else
 	{
 		_profil = new Profil();
-		Operation = EXTRA_OPERATION_AJOUTE;
+		_operation = EXTRA_OPERATION_AJOUTE;
 	}
 
 	MajUI();
@@ -274,7 +271,7 @@ public void onOK()
 	Bundle bundle = new Bundle();
 	_profil.toBundle(bundle);
 
-	bundle.putString(EXTRA_OPERATION, Operation);
+	bundle.putString(EXTRA_OPERATION, _operation);
 	returnIntent.putExtras(bundle);
 	setResult(Activity.RESULT_OK, returnIntent);
 
@@ -282,7 +279,7 @@ public void onOK()
 	finish();
 }
 
-private boolean displayError(boolean error, View v, String message)
+private boolean displayError(boolean error, @NonNull View v, @NonNull String message)
 {
 	if (error)
 	{
@@ -329,11 +326,8 @@ public void onClickChoisirPartage(View v)
  *
  * @param intent
  */
-private void onReceiveListePartages(Intent intent)
+private void onReceiveListePartages(@NonNull Intent intent)
 {
-	if (intent == null)
-		return;
-
 	int retour = intent.getIntExtra(Partages.RESULT_RECHERCHE, Partages.RESULT_ERREUR);
 	if (retour != Partages.RESULT_OK)
 	{
@@ -351,7 +345,7 @@ private void onReceiveListePartages(Intent intent)
 	AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
 	builderSingle.setTitle("Partages");
 
-	final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, liste);
+	final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice, liste);
 	builderSingle.setAdapter(
 			arrayAdapter,
 			new DialogInterface.OnClickListener()

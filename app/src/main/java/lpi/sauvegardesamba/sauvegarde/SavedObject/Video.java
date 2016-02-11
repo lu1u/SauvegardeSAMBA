@@ -36,13 +36,11 @@ static private int _colonneAbsolutePath;
 static private int _colonneDisplayName;
 static private int _colonneDateModified;
 static private int _colonneDateTaken;
-static private int _colonneDateAdded;
 static private int _colonneBucketName;
 public String _absolutePath;
 public String _displayName;
 public String _bucketName;
 public long _dateTaken;
-public long _dateAdded;
 public long _dateModified;
 
 public Video(Cursor cursor, Context context)
@@ -51,7 +49,6 @@ public Video(Cursor cursor, Context context)
 	_displayName = cursor.getString(_colonneDisplayName);
 	_dateModified = cursor.getLong(_colonneDateModified);
 	_dateTaken = cursor.getLong(_colonneDateTaken);
-	_dateAdded = cursor.getLong(_colonneDateAdded);
 	_bucketName = cursor.getString(_colonneBucketName);
 }
 
@@ -63,25 +60,24 @@ public static Cursor getList(Context context)
 			null,  //$NON-NLS-1$
 			null,
 			null);
-	try
-	{
-		_colonneAbsolutePath = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-		_colonneDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
-		_colonneDateModified = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_MODIFIED);
-		_colonneDateTaken = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_TAKEN);
-		_colonneDateAdded = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED);
-		_colonneBucketName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
-	} catch (IllegalArgumentException e)
-	{
-		return null;
-	}
+
+	if (cursor != null)
+		try
+		{
+			_colonneAbsolutePath = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+			_colonneDisplayName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
+			_colonneDateModified = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_MODIFIED);
+			_colonneDateTaken = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_TAKEN);
+			_colonneBucketName = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
+		} catch (IllegalArgumentException e)
+		{
+			return null;
+		}
 	return cursor;
 }
 
 /***
  * Calcule un nom de fichier pour enregistrer ce ic_contact
- *
- *
  */
 public String getFileName()
 {
@@ -92,27 +88,27 @@ public String getFileName()
 /**
  * Sauvegarde le ic_contact dans le fichier samba donne en parametre
  */
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
+public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
-	String fileName = getFileName()  ;
-	SmbFile smbDest = new SmbFile(Combine(smbRoot.getCanonicalPath(),fileName), authentification);
+	String fileName = getFileName();
+	SmbFile smbDest = new SmbFile(Combine(smbRoot.getCanonicalPath(), fileName), authentification);
 	if (smbDest.exists())
 	{
 		// Deja sauvegarde, plus rien a faire
-		return SauvegardeReturnCode.EXISTE_DEJA ;
+		return SauvegardeReturnCode.EXISTE_DEJA;
 	}
 
 	// Passer par un fichier temporaire pour le cas ou la copie serai interrompue
-	String tempFileName = "temp" + fileName ;
-	SmbFile smbTempDest = new SmbFile(Combine(smbRoot.getCanonicalPath(),tempFileName), authentification);
-	if ( smbTempDest.exists())
+	String tempFileName = "temp" + fileName;
+	SmbFile smbTempDest = new SmbFile(Combine(smbRoot.getCanonicalPath(), tempFileName), authentification);
+	if (smbTempDest.exists())
 	{
 		try
 		{
 			smbTempDest.delete();
 		} catch (SmbException e)
 		{
-			return SauvegardeReturnCode.IMPOSSIBLE_SUPPRIMER_TEMP ;
+			return SauvegardeReturnCode.IMPOSSIBLE_SUPPRIMER_TEMP;
 		}
 	}
 
@@ -129,9 +125,10 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPas
 
 	} catch (Exception e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde de la vidéo " + _displayName);
-		Report.Log(Report.NIVEAU.ERROR, e);
-		return SauvegardeReturnCode.ERREUR_COPIE ;
+		Report report = Report.getInstance(context);
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde de la vidéo " + _displayName);
+		report.log(Report.NIVEAU.ERROR, e);
+		return SauvegardeReturnCode.ERREUR_COPIE;
 	} finally
 	{
 		if (ips != null)

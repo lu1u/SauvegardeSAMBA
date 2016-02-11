@@ -2,6 +2,7 @@ package lpi.sauvegardesamba.sauvegarde.SavedObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import lpi.sauvegardesamba.profils.Profil;
@@ -21,11 +22,12 @@ protected boolean objetsActifs(Profil profil)
 @Override
 protected boolean regrouperObjets(Context context)
 {
-	Preferences pref = new Preferences(context);
+	Preferences pref = Preferences.getInstance(context);
 	return pref.getRegrouperMessages();
 }
 
 @Override
+@NonNull
 protected String getMessage(MESSAGES message, Object... arguments)
 {
 	switch( message )
@@ -49,21 +51,21 @@ protected String getMessage(MESSAGES message, Object... arguments)
 }
 
 @Override
-protected String getRepertoireObjets(Context context)
+protected String getRepertoireObjets(@NonNull Context context)
 {
-	Preferences pref = new Preferences(context);
+	Preferences pref = Preferences.getInstance(context);
 	return pref.getPrefRepertoireMessages();
 }
 
 @Override
 @Nullable
-protected Cursor getList(Context context)
+protected Cursor getList(@NonNull Context context)
 {
 	return Message.getList(context);
 }
 
 @Override
-protected SavedObject creerObjet(Cursor cursor, Context context)
+protected SavedObject creerObjet(@NonNull Cursor cursor, @NonNull Context context)
 {
 	return new Message(cursor, context );
 }

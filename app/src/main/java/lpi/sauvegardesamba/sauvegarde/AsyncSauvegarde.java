@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Calendar;
 
@@ -23,15 +23,15 @@ import lpi.sauvegardesamba.utils.Report;
  */
 public class AsyncSauvegarde extends AsyncTask<AsyncSauvegardeManager, Void, Void>           // Do in backgroud, update, postexecute
 {
-public static String ACTION_ASYNCSAVE = "lpi.SAMBAckup.AsyncSave";
-public static String COMMAND = "commande";
-public static String COMMAND_STARTED = "started";
-public static String COMMAND_FINISHED = "finished";
-public static String COMMAND_PROFIL = "profil";
-public static String COMMAND_PROGRESS = "progress";
-public static String PARAM_FORMAT = "profil.Nom";
-public static String PARAM_CURRENT = "current";
-public static String PARAM_MAX = "max";
+public static final String ACTION_ASYNCSAVE = "lpi.SAMBAckup.AsyncSave";
+public static final String COMMAND = "commande";
+public static final String COMMAND_STARTED = "started";
+public static final String COMMAND_FINISHED = "finished";
+public static final String COMMAND_PROFIL = "profil";
+public static final String COMMAND_PROGRESS = "progress";
+public static final String PARAM_FORMAT = "profil.Nom";
+public static final String PARAM_CURRENT = "current";
+public static final String PARAM_MAX = "max";
 public static int TOUS_LES_PROFILS = ProfilsDatabase.INVALID_ID;
 static private volatile Boolean _encours = false;
 ProfilsDatabase _database;
@@ -41,7 +41,7 @@ public static boolean enCours(Context context)
 {
 	synchronized (_encours)
 	{
-		_encours = new Preferences(context).getSauvegardeEnCours();
+		_encours = Preferences.getInstance(context).getSauvegardeEnCours();
 		return _encours;
 	}
 }
@@ -73,16 +73,6 @@ public static String getLocalizedTimeAndDate(Context context, long d)
 	return getLocalizedTimeAndDate(context, c);
 }
 
-/***
- * Affichage de ic_message d'erreur
- * <p/>
- * aparam localizedMessage
- */
-public static void Erreur(Context c, String localizedMessage)
-{
-	Log.e("SAMBA", localizedMessage);
-	Toast.makeText(c, "ERREUR: " + localizedMessage, Toast.LENGTH_LONG).show(); //$NON-NLS-1$
-}
 
 /***
  * Charge une chaine de caracteres depuis les ressources et ajoute eventuellement des arguments
@@ -96,20 +86,18 @@ static public String formatResourceString(Context context, int resId, Object... 
 	return String.format(format, args);
 }
 
-private void enCours(boolean encours)
+private synchronized void enCours(boolean encours)
 {
-	synchronized (_encours)
+	if (encours == _encours)
 	{
-		if (encours == _encours)
-		{
-			// Bizarre, le status est deja le meme
-			return;
-		}
-		Preferences pref = new Preferences(_context);
-		pref.setSauvegardeEnCours(encours);
-		pref.save();
-		_encours = encours;
+		// Bizarre, le status est deja le meme
+		return;
 	}
+	_encours = encours;
+
+	Preferences pref = Preferences.getInstance(_context);
+	pref.setSauvegardeEnCours(encours);
+	pref.save();
 }
 
 protected Void doInBackground(AsyncSauvegardeManager... params)
@@ -127,19 +115,21 @@ protected Void doInBackground(AsyncSauvegardeManager... params)
 	return null;
 }
 
-private synchronized void executeSauvegarde(Context context, int profilId, AsyncSauvegardeManager manager)
+private synchronized void executeSauvegarde(@NonNull Context context, int profilId, @NonNull AsyncSauvegardeManager manager)
 {
-	Preferences pref = new Preferences(_context);
+	Report report = Report.getInstance(context);
+
 	if (enCours(context))
 	{
-		Report.historique("Une sauvegarde est déjà en cours");
+		report.historique("Une sauvegarde est déjà en cours");
 		return;
 	}
 
+	report.historique(manager._type == AsyncSauvegardeManager.TYPE_LAUNCHED.AUTO ? "Sauvegarde automatique" : manager._type == AsyncSauvegardeManager.TYPE_LAUNCHED.MANUEL ? "Sauvegarde Manuelle" : "Sauvegarde sur détection du WIFI");
 	enCours(true);
 	try
 	{
-		Report.Log(Report.NIVEAU.DEBUG, "Depart sauvegarde ");
+		report.log(Report.NIVEAU.DEBUG, "Depart sauvegarde ");
 
 		_database = ProfilsDatabase.getInstance(_context);
 		if (profilId == TOUS_LES_PROFILS)
@@ -148,7 +138,7 @@ private synchronized void executeSauvegarde(Context context, int profilId, Async
 			Cursor cursor = _database.getCursor();
 			if (cursor == null)
 			{
-				Report.Log(Report.NIVEAU.ERROR, "Impossible d'obtenir la liste des profils");
+				report.log(Report.NIVEAU.ERROR, "Impossible d'obtenir la liste des profils");
 			}
 			else
 			{
@@ -172,15 +162,15 @@ private synchronized void executeSauvegarde(Context context, int profilId, Async
 
 		if (manager.isCanceled())
 		{
-			Report.Log(Report.NIVEAU.DEBUG, _context.getString(R.string.sauvegarde_annulee_par_utilisateur)); //$NON-NLS-1$
+			report.log(Report.NIVEAU.DEBUG, _context.getString(R.string.sauvegarde_annulee_par_utilisateur)); //$NON-NLS-1$
 		}
 		else
 		{
-			Report.Log(Report.NIVEAU.DEBUG, _context.getString(R.string.sauvegarde_terminee_correctement)); //$NON-NLS-1$
+			report.log(Report.NIVEAU.DEBUG, _context.getString(R.string.sauvegarde_terminee_correctement)); //$NON-NLS-1$
 		}
 	} catch (Exception e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, e);
+		report.log(Report.NIVEAU.ERROR, e);
 		MainActivity.SignaleErreur("Une erreur est survenue pendant la sauvegarde, vous pouvez consulter le rapport de l'application", e);
 	} finally
 	{
@@ -188,15 +178,12 @@ private synchronized void executeSauvegarde(Context context, int profilId, Async
 	}
 }
 
-private void signaleProfil(Profil profil, int current, int max)
+private void signaleProfil(@NonNull Profil profil, int current, int max)
 {
 	Intent intent = new Intent(ACTION_ASYNCSAVE);
 	intent.putExtra(COMMAND, COMMAND_PROFIL);
 	Bundle b = new Bundle();
 	profil.toBundle(b);
-	/*intent.putExtra(PARAM_PROFIL_NOM, profil.Nom);
-	intent.putExtra(PARAM_PROFIL_PARTAGE, profil.Partage);
-	intent.putExtra(PARAM_PROFIL_ID, profil.Id); */
 	intent.putExtras(b);
 	intent.putExtra(PARAM_CURRENT, current);
 	intent.putExtra(PARAM_MAX, max);
@@ -229,7 +216,7 @@ public String formatResourceString(int resId, Object... args)
 	return String.format(format, args);
 }
 
-public String getLocalizedTimeAndDate(Calendar c)
+public String getLocalizedTimeAndDate(@Nullable Calendar c)
 {
 	if (c == null)
 		c = Calendar.getInstance();

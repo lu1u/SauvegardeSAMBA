@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="themes">
-        <item>Bleu et rouge</item>
+        <item>Bleu</item>
         <item>Vert</item>
         <item>Pourpre</item>
         <item>Marron</item>
         <item>Gris</item>
+        <item>Jaune</item>
     </string-array>
 
     <string-array name="niveauxRapport">

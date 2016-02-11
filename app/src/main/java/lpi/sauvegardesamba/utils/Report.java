@@ -4,10 +4,12 @@
 package lpi.sauvegardesamba.utils;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import java.util.Calendar;
 import java.util.Locale;
 
+import lpi.sauvegardesamba.database.DatabaseHelper;
 import lpi.sauvegardesamba.database.HistoriqueDatabase;
 import lpi.sauvegardesamba.database.TracesDatabase;
 
@@ -17,31 +19,32 @@ import lpi.sauvegardesamba.database.TracesDatabase;
 @SuppressWarnings("nls")
 public class Report
 {
-static HistoriqueDatabase _historiqueDatabase;
-static TracesDatabase _tracesDatabase;
-static private Context _context;
+private static final int MAX_BACKTRACE = 10;
+private static Report INSTANCE = null;
+
+final HistoriqueDatabase _historiqueDatabase;
+final TracesDatabase _tracesDatabase;
+
 
 private Report(Context context)
 {
+	_historiqueDatabase = HistoriqueDatabase.getInstance(context);
+	_tracesDatabase = TracesDatabase.getInstance(context);
 
 }
 
-static public void Init(Context context)
+/**
+ * Point d'accès pour l'instance unique du singleton
+ *
+ * @param context: le context habituel d'ANdroid, peut être null si l'objet a deja ete utilise
+ */
+public static synchronized Report getInstance(Context context)
 {
-	_context = context;
-
-	if (_historiqueDatabase == null)
-		_historiqueDatabase = HistoriqueDatabase.getInstance(context);
-
-	if (_tracesDatabase == null)
-		_tracesDatabase = TracesDatabase.getInstance(context);
-}
-
-public static void Log(NIVEAU niv, String message)
-{
-	Calendar c = Calendar.getInstance();
-
-	_tracesDatabase.Ajoute((int) (c.getTimeInMillis() / 1000L), toInt(niv), message);
+	if (INSTANCE == null)
+	{
+		INSTANCE = new Report(context);
+	}
+	return INSTANCE;
 }
 
 public static int toInt(NIVEAU n)
@@ -86,23 +89,28 @@ public static String getLocalizedDate(long date)
 			c.get(Calendar.SECOND)); // + ":" + c.get(Calendar.MILLISECOND) ;
 }
 
+@NonNull
 public static String getLocalizedDate()
 {
 	return getLocalizedDate(System.currentTimeMillis());
 }
 
-static public void Log(NIVEAU niv, Exception e)
+public void log(NIVEAU niv, String message)
 {
-	Log(niv, e.getLocalizedMessage());
-	for (int i = 0; i < e.getStackTrace().length && i < 5; i++)
-		Log(niv, e.getStackTrace()[i].getClassName() + '/' + e.getStackTrace()[i].getMethodName() + ':' + e.getStackTrace()[i].getLineNumber());
+	_tracesDatabase.Ajoute(DatabaseHelper.CalendarToSQLiteDate(null), toInt(niv), message);
+}
+
+public void log(NIVEAU niv, Exception e)
+{
+	log(niv, e.getLocalizedMessage());
+	for (int i = 0; i < e.getStackTrace().length && i < MAX_BACKTRACE; i++)
+		log(niv, e.getStackTrace()[i].getClassName() + '/' + e.getStackTrace()[i].getMethodName() + ':' + e.getStackTrace()[i].getLineNumber());
 
 }
 
-static public void historique(String message)
+public void historique(String message)
 {
-	Calendar c = Calendar.getInstance();
-	_historiqueDatabase.Ajoute((int) (c.getTimeInMillis() / 1000L), message);
+	_historiqueDatabase.Ajoute(DatabaseHelper.CalendarToSQLiteDate(null), message);
 }
 
 public enum NIVEAU

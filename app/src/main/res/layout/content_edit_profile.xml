@@ -127,7 +127,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:background="@drawable/button_rounded"
                     android:onClick="onClickChoisirPartage"
                     android:padding="@dimen/text_margin"
                     android:text="Choisissez un partage réseau"

@@ -5,16 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import lpi.sauvegardesamba.database.ProfilsDatabase;
 import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegardeManager;
-import lpi.sauvegardesamba.utils.Utils;
 
 public class SauvegardeEnCoursActivity extends AppCompatActivity
 {
@@ -23,9 +22,7 @@ TextView _textViewProgress;
 TextView _textviewProfil;
 TextView _textViewPartage ;
 ProgressBar _progressbarObjets;
-boolean _annule;
-AsyncSauvegardeManager _manager;
-private BroadcastReceiver _receiver = new BroadcastReceiver()
+final private BroadcastReceiver _receiver = new BroadcastReceiver()
 {
 	@Override
 	public void onReceive(Context context, Intent intent)
@@ -36,6 +33,8 @@ private BroadcastReceiver _receiver = new BroadcastReceiver()
 			onSauvegardeInfo(intent);
 	}
 };
+boolean _annule = false;
+AsyncSauvegardeManager _manager;
 
 private void onSauvegardeInfo(Intent intent)
 {
@@ -81,10 +80,9 @@ protected void onDestroy()
 @Override
 protected void onCreate(Bundle savedInstanceState)
 {
-	Utils.setTheme(this);
+	//Utils.setTheme(this);
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_sauvegarde_en_cours);
-	ProfilsDatabase database = ProfilsDatabase.getInstance(this);
 	_progressbarObjets = (ProgressBar) findViewById(R.id.progressBarObjets);
 	_textViewProgress = (TextView) findViewById(R.id.textviewMessage);
 	_textviewProfil = (TextView) findViewById(R.id.textViewProfil);
@@ -106,20 +104,18 @@ protected void onCreate(Bundle savedInstanceState)
 	registerReceiver(_receiver, filter);
 
 	_manager = AsyncSauvegardeManager.getInstance(this);
-	int profilId = -1 ;
 	Intent i = getIntent();
 	{
+		int profilId = -1;
 		if (i != null)
 			profilId = i.getIntExtra(PARAM_ID, -1);
 
-		//SauvegardeManuelle s = new SauvegardeManuelle(this, this, profilId);
-		//s.execute();
 		_manager.startSauvegarde(profilId, AsyncSauvegardeManager.TYPE_LAUNCHED.MANUEL);
 	}
 }
 
 
-public void setProgress(String format, int step, int Max)
+public void setProgress(@NonNull String format, int step, int Max)
 {
 	_progressbarObjets.setMax(Max);
 	_progressbarObjets.setProgress(step);

@@ -13,8 +13,8 @@ public class AsyncSauvegardeManager
  * Instance unique non préinitialisée
  */
 private static AsyncSauvegardeManager INSTANCE = null;
+public final Context _context;
 public int _profilId;
-public Context _context;
 public TYPE_LAUNCHED _type;
 private AsyncSauvegarde _asyncTask;
 private boolean _isCanceled;

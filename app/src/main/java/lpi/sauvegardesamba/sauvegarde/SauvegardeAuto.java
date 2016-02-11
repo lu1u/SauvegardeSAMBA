@@ -67,7 +67,7 @@ static final int NOTIFICATION_ID = 1;
     {
         //	if(  step % 10 == 0)
         {
-            Notification(String.format(format, Integer.valueOf(step), Integer.valueOf(Max)));
+            Notification(String.format(format, step, Max));
         }
     }
 

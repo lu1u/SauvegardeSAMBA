@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.provider.BaseColumns;
 import android.provider.CallLog;
 import android.provider.Telephony;
 import android.support.annotation.NonNull;
@@ -25,25 +24,22 @@ import lpi.sauvegardesamba.utils.Report;
  */
 public class Appel extends SavedObject
 {
-static private String COLONNES[] = new String[]
-		{CallLog.Calls._ID, CallLog.Calls.NUMBER, CallLog.Calls.DATE, CallLog.Calls.DURATION, CallLog.Calls.TYPE};
+static final private String COLONNES[] = new String[]
+		{CallLog.Calls.NUMBER, CallLog.Calls.DATE, CallLog.Calls.DURATION, CallLog.Calls.TYPE};
 
-private static int _colID;
 private static int _colNumber;
 private static int _colDate;
 private static int _colDuration;
 private static int _colType;
 
-public String _ID;
-public String _number;
-public long _date;
-public long _duration;
-public int _type;
-public String _address;
+public final String _number;
+public final long _date;
+public final long _duration;
+public final int _type;
+public final String _address;
 
 public Appel(Cursor cursor, Context context)
 {
-	_ID = cursor.getString(_colID);
 	_date = cursor.getLong(_colDate);
 	_duration = cursor.getLong(_colDuration);
 	_number = cursor.getString(_colNumber);
@@ -62,7 +58,6 @@ public static Cursor getList(Context context)
 
 	try
 	{
-		_colID = cursor.getColumnIndexOrThrow(BaseColumns._ID);
 		_colNumber = cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER);
 		_colDate = cursor.getColumnIndexOrThrow(CallLog.Calls.DATE);
 		_colDuration = cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION);
@@ -76,7 +71,7 @@ public static Cursor getList(Context context)
 }
 
 @Override
-public String Nom(Context context)
+public String Nom(@NonNull Context context)
 {
 	String res = "[" + sqliteDateHourToString(context, _date) + "]";
 
@@ -103,7 +98,7 @@ public String Nom(Context context)
 @Override
 public String getCategorie()
 {
-	return _address ;
+	return _address;
 }
 
 public String getFileName(Context context)
@@ -112,10 +107,10 @@ public String getFileName(Context context)
 }
 
 @Override
-public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPasswordAuthentication authentification) throws IOException
+public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Context context, NtlmPasswordAuthentication authentification) throws IOException
 {
 	// Path de cet appel
- 	String path = smbRoot.getCanonicalPath();
+	String path = smbRoot.getCanonicalPath();
 	String appelPath = SavedObject.Combine(path, getFileName(context));
 	Log.d("SAVE", "Message path:" + path);
 	SmbFile appelSmbFile = new SmbFile(appelPath, authentification);
@@ -130,7 +125,6 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPas
 				sops.write(("Appel le " + sqliteDateHourToString(context, _date) + " de " + _address).getBytes());
 				break;
 
-
 			case Telephony.TextBasedSmsColumns.MESSAGE_TYPE_OUTBOX:
 			case Telephony.TextBasedSmsColumns.MESSAGE_TYPE_SENT:
 				sops.write(("Appel le " + sqliteDateHourToString(context, _date) + " à " + _address).getBytes());
@@ -141,12 +135,14 @@ public SauvegardeReturnCode sauvegarde(SmbFile smbRoot, Context context, NtlmPas
 		sops.write(("\nDurée: " + sqliteDurationToString(context, _duration)).getBytes());
 	} catch (IOException e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde de l'appel " + _address + sqliteDateHourToString(context, _date));
-		Report.Log(Report.NIVEAU.ERROR, e);
+		Report report = Report.getInstance(context);
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la sauvegarde de l'appel " + _address + sqliteDateHourToString(context, _date));
+		report.log(Report.NIVEAU.ERROR, e);
 		return SauvegardeReturnCode.ERREUR_CREATION_FICHIER;
 	} finally
 	{
-		sops.close();
+		if (sops != null)
+			sops.close();
 	}
 
 	appelSmbFile.setLastModified(_date);

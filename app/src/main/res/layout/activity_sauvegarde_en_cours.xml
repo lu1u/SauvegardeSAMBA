@@ -24,37 +24,37 @@
                 android:layout_gravity="center_horizontal|bottom"
                 android:textAppearance="?android:attr/textAppearanceSmall"/>
 
-            <ProgressBar
-                android:id="@+id/progressBarObjets"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
+        <!--  -->
+        <ProgressBar
+            android:id="@+id/progressBarObjets"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
 
         <Button
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@drawable/button_rounded"
             android:padding="@dimen/text_margin"
             android:text="Annuler"
             />
 
     </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/progressBarEnCours"
-            android:layout_width="191dp"
-            android:layout_height="285dp"
-            android:layout_gravity="center"
-            android:foreground="@color/primary_text"
-            android:indeterminate="true"
-            android:indeterminateBehavior="repeat"
+    <ProgressBar
+        android:id="@+id/progressBarEnCours"
+        android:layout_width="191dp"
+        android:layout_height="285dp"
+        android:layout_gravity="center"
+        android:indeterminate="false"
+        android:indeterminateBehavior="cycle"
             android:indeterminateDrawable="@drawable/progress_activity_en_cours"
-            android:indeterminateOnly="true"
-            android:scaleX="1"
-            android:scaleY="1"
-            android:visibility="gone"/>
+        android:max="100"
+        android:progress="75"
+        android:progressDrawable="@drawable/progress_activity_en_cours"
+        android:secondaryProgress="100"/>
+    <!---->
 
     <LinearLayout
         android:layout_width="wrap_content"

@@ -9,16 +9,15 @@ import java.util.ArrayList;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
-import lpi.sauvegardesamba.MainActivity;
 
 /**
  * Created by lucien on 26/01/2016.
  */
 public class RecherchePartage extends AsyncTask<Void, Void, Void>
 {
+final Activity _activity;
+final String _utilisateur, _motDePasse;
 ProgressDialog progress;
-Activity _activity;
-String _utilisateur, _motDePasse;
 
 public RecherchePartage(Activity a, String Utilisateur, String MotDePasse)
 {
@@ -50,7 +49,7 @@ protected Void doInBackground(Void... params)
 		NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, _utilisateur, _motDePasse);
 		SmbFile domaines = new SmbFile("smb://", auth);
 		SmbFile[] domains = domaines.listFiles();
-		ArrayList<String> liste = new ArrayList<String>();
+		ArrayList<String> liste = new ArrayList<>();
 
 		for (SmbFile domaine : domains)
 		{

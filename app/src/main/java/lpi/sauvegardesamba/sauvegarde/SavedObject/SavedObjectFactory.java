@@ -15,6 +15,7 @@ import lpi.sauvegardesamba.sauvegarde.SauvegardeReturnCode;
 import lpi.sauvegardesamba.utils.Report;
 
 /**
+ * Classe de base pour les factories
  * Created by lucien on 04/02/2016.
  */
 public abstract class SavedObjectFactory
@@ -35,15 +36,16 @@ protected abstract Cursor getList(Context context);
 @NonNull
 protected abstract SavedObject creerObjet(Cursor cursor, Context context);
 
-public SauvegardeReturnCode sauvegarde(Context context, Profil profil, String rootPath, NtlmPasswordAuthentication authentification, AsyncSauvegardeManager dlg)
+public SauvegardeReturnCode sauvegarde(@NonNull Context context, @NonNull Profil profil, @NonNull String rootPath, NtlmPasswordAuthentication authentification, @NonNull AsyncSauvegardeManager dlg)
 {
+	Report report = Report.getInstance(context);
 	if (!objetsActifs(profil))
 	{
-		Report.Log(Report.NIVEAU.DEBUG, getMessage(MESSAGES.INACTIF));
+		report.log(Report.NIVEAU.DEBUG, getMessage(MESSAGES.INACTIF));
 		return SauvegardeReturnCode.INACTIF;
 	}
 
-	Report.Log(Report.NIVEAU.DEBUG, getMessage(MESSAGES.LOG_SAUVEGARDE));
+	report.log(Report.NIVEAU.DEBUG, getMessage(MESSAGES.LOG_SAUVEGARDE));
 	rootPath = SavedObject.Combine(rootPath, getRepertoireObjets(context));
 	try
 	{
@@ -55,51 +57,56 @@ public SauvegardeReturnCode sauvegarde(Context context, Profil profil, String ro
 				smbRoot.mkdir();
 			} catch (SmbException e)
 			{
-				Report.Log(Report.NIVEAU.ERROR, getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
+				report.log(Report.NIVEAU.ERROR, getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
 				return SauvegardeReturnCode.IMPOSSIBLE_CREER_REPERTOIRE;
 			}
 		}
 
 		Cursor cursor = getList(context);
-		int max = cursor.getCount();
-		int current = 0;
-		while (cursor.moveToNext() && !dlg.isCanceled())
+		if (cursor != null)
 		{
-			current++;
-			AsyncSauvegarde.signaleProgress(context, getMessage(MESSAGES.PROGRESS), current, max);
-
-			SavedObject objet = creerObjet(cursor, context);
-			if (objet.quelqueChoseASauvegarder())
+			int max = cursor.getCount();
+			int current = 0;
+			while (cursor.moveToNext() && !dlg.isCanceled())
 			{
-				SmbFile objectRoot = getPath(rootPath, objet, context, authentification);
-				if (objectRoot != null)
-					switch (objet.sauvegarde(objectRoot, context, authentification))
-					{
-						case ERREUR_COPIE:
-						case EXISTE_DEJA:
-						case OK:
-						case IMPOSSIBLE_CREER_REPERTOIRE:
-						case IMPOSSIBLE_SUPPRIMER_TEMP:
-						case INACTIF:
-							// TODO: traiter les retours d'erreur
-							break;
-					}
+				current++;
+				AsyncSauvegarde.signaleProgress(context, getMessage(MESSAGES.PROGRESS), current, max);
+
+				SavedObject objet = creerObjet(cursor, context);
+				if (objet.quelqueChoseASauvegarder())
+				{
+					SmbFile objectRoot = getPath(rootPath, objet, context, authentification);
+					if (objectRoot != null)
+						switch (objet.sauvegarde(objectRoot, context, authentification))
+						{
+							case ERREUR_COPIE:
+							case EXISTE_DEJA:
+							case OK:
+							case IMPOSSIBLE_CREER_REPERTOIRE:
+							case IMPOSSIBLE_SUPPRIMER_TEMP:
+							case INACTIF:
+								// TODO: traiter les retours d'erreur
+								break;
+						}
+				}
 			}
+			cursor.close();
 		}
-		cursor.close();
+		else
+			report.log(Report.NIVEAU.ERROR, "Impossible de recuperer la liste");
 
 	} catch (Exception e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, getMessage(MESSAGES.ERREUR_LORS_DE_LA_SAUVEGARDE, rootPath));
-		Report.Log(Report.NIVEAU.DEBUG, e);
+		report.log(Report.NIVEAU.ERROR, getMessage(MESSAGES.ERREUR_LORS_DE_LA_SAUVEGARDE, rootPath));
+		report.log(Report.NIVEAU.DEBUG, e);
 	}
 
-	Report.Log(Report.NIVEAU.DEBUG, "Tous les objets traités");
+	report.log(Report.NIVEAU.DEBUG, "Tous les objets traités");
 	return SauvegardeReturnCode.OK;
 }
 
 @Nullable
-private SmbFile getPath(String rootPath, SavedObject objet, Context context, NtlmPasswordAuthentication authentification)
+private SmbFile getPath(@NonNull String rootPath, @NonNull SavedObject objet, @NonNull Context context, NtlmPasswordAuthentication authentification)
 {
 	// Sous repertoire pour cet objet ?
 	SmbFile objectRoot = null;
@@ -117,7 +124,8 @@ private SmbFile getPath(String rootPath, SavedObject objet, Context context, Ntl
 					objectRoot.mkdir();
 				} catch (SmbException e)
 				{
-					Report.Log(Report.NIVEAU.ERROR, getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
+					Report report = Report.getInstance(context);
+					report.log(Report.NIVEAU.ERROR, getMessage(MESSAGES.IMPOSSIBLE_CREER_REPERTOIRE, rootPath));
 					return null;
 				}
 			}
@@ -127,8 +135,9 @@ private SmbFile getPath(String rootPath, SavedObject objet, Context context, Ntl
 
 	} catch (Exception e)
 	{
-		Report.Log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire " + rootPath);
-		Report.Log(Report.NIVEAU.DEBUG, e);
+		Report report = Report.getInstance(context);
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire " + rootPath);
+		report.log(Report.NIVEAU.DEBUG, e);
 	}
 
 	return objectRoot;

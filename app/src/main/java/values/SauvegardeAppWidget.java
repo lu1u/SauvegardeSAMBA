@@ -13,6 +13,8 @@ import android.widget.Toast;
 import lpi.sauvegardesamba.R;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegardeManager;
+import lpi.sauvegardesamba.utils.Report;
+import lpi.sauvegardesamba.utils.Utils;
 
 /**
  * Implementation of App Widget functionality.
@@ -20,26 +22,30 @@ import lpi.sauvegardesamba.sauvegarde.AsyncSauvegardeManager;
 public class SauvegardeAppWidget extends AppWidgetProvider
 {
 public static final String WIDGET_ACTION = "lpi.SAMBAckup.widgetclic";
-private Context _context;
 
 static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                             int appWidgetId)
 {
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget updateAppWidget id=" + appWidgetId);
+
 	// Construct the RemoteViews object
 	RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_sauvegarde);
-	Intent intent = new Intent(context, SauvegardeAppWidget.class);
-	intent.setAction(WIDGET_ACTION);
-	PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-	views.setOnClickPendingIntent(R.id.widgetLayout, pendingIntent);
+
+	// Intercepter les clics
+	setClickListener(context, views);
 
 	if (AsyncSauvegarde.enCours(context))
 	{
+		// Une sauvegarde est en cours
+		views.setImageViewBitmap(R.id.imageView, Utils.getBitmap(context, R.mipmap.ic_stop));
 		views.setViewVisibility(R.id.progressBarWidget, View.VISIBLE);
-		views.setViewVisibility(R.id.textViewProfil, View.GONE);
-		views.setViewVisibility(R.id.textViewProgress, View.GONE);
+		//views.setViewVisibility(R.id.textViewProfil, View.GONE);
+		//views.setViewVisibility(R.id.textViewProgress, View.GONE);
 	}
 	else
 	{
+		// Pas de sauvegarde en cours
+		views.setImageViewBitmap(R.id.imageView, Utils.getBitmap(context, R.mipmap.ic_play));
 		views.setViewVisibility(R.id.progressBarWidget, View.GONE);
 		views.setProgressBar(R.id.progressBarWidget, 1, 10, true);
 	}
@@ -47,10 +53,24 @@ static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
 	appWidgetManager.updateAppWidget(appWidgetId, views);
 }
 
+/***
+ * Mise en place du recepteur de clic
+ *
+ * @param context
+ * @param views
+ */
+private static void setClickListener(Context context, RemoteViews views)
+{
+	Intent intent = new Intent(context, SauvegardeAppWidget.class);
+	intent.setAction(WIDGET_ACTION);
+	PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+	views.setOnClickPendingIntent(R.id.widgetLayout, pendingIntent);
+}
+
 @Override
 public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds)
 {
-	_context = context;
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: onUpdate");
 	// There may be multiple widgets active, so update all of them
 	for (int appWidgetId : appWidgetIds)
 	{
@@ -61,7 +81,8 @@ public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] a
 @Override
 public void onEnabled(Context context)
 {
-	_context = context;
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: onEnabled");
+	updateAll(context);
 }
 
 
@@ -72,31 +93,44 @@ public void onEnabled(Context context)
 @Override
 public void onReceive(Context context, Intent intent)
 {
-	_context = context;
 	super.onReceive(context, intent);
 	String action = intent.getAction();
+	//Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: onReceive " + action);
 	if (WIDGET_ACTION.equals(action))
 		onWidgetClic(context, intent);
-	if (AsyncSauvegarde.ACTION_ASYNCSAVE.equals(action))
-		onInfoFromService(context, intent);
+	else if (AsyncSauvegarde.ACTION_ASYNCSAVE.equals(action))
+		onInfoFromAsyncSave(context, intent);
+	else if ("android.intent.action.BOOT_COMPLETED".equals(action) //$NON-NLS-1$
+			|| "android.intent.action.QUICKBOOT_POWERON".equals(action)) //$NON-NLS-1$
+		onBoot(context, intent);
 }
 
-private void onInfoFromService(Context context, Intent intent)
+private void onBoot(Context context, Intent intent)
 {
-	_context = context;
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "onBoot");
+	updateAll(context);
+}
+
+/***
+ * Reception d'information/notification envoyees par ASyncSauvegarde
+ *
+ * @param context
+ * @param intent
+ */
+private void onInfoFromAsyncSave(Context context, Intent intent)
+{
 	String commande = intent.getStringExtra(AsyncSauvegarde.COMMAND);
-	updateAll();
-	/*
-	if ( AsyncSauvegarde.COMMAND_STARTED.equals(commande))
+	if (AsyncSauvegarde.COMMAND_STARTED.equals(commande))
 	{
+		updateAll(context);
 
 	}
-	else
-	if ( AsyncSauvegarde.COMMAND_FINISHED.equals(commande))
+	else if (AsyncSauvegarde.COMMAND_FINISHED.equals(commande))
 	{
+		updateAll(context);
 
 	}
-	else
+/*	else
 	if ( AsyncSauvegarde.COMMAND_PROFIL.equals(commande))
 	{
 
@@ -109,31 +143,57 @@ private void onInfoFromService(Context context, Intent intent)
     */
 }
 
-private void updateAll()
+private void updateAll(Context context)
 {
-	if (_context != null)
-	{
-		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(_context);
-		ComponentName thisAppWidget = new ComponentName(_context.getPackageName(), this.getClass().getName());
-		int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
+	AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+	ComponentName thisAppWidget = new ComponentName(context.getPackageName(), this.getClass().getName());
+	int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
 
-		onUpdate(_context, appWidgetManager, appWidgetIds);
-	}
+	onUpdate(context, appWidgetManager, appWidgetIds);
+}
+
+/**
+ * Called in response to the {@link AppWidgetManager#ACTION_APPWIDGET_RESTORED} broadcast
+ * when instances of this AppWidget provider have been restored from backup.  If your
+ * provider maintains any persistent data about its widget instances, override this method
+ * to remap the old AppWidgetIds to the new values and update any other app state that may
+ * be relevant.
+ * <p/>
+ * <p>This callback will be followed immediately by a call to {@link #onUpdate} so your
+ * provider can immediately generate new RemoteViews suitable for its newly-restored set
+ * of instances.
+ * <p/>
+ * {@more}
+ *
+ * @param context
+ * @param oldWidgetIds
+ * @param newWidgetIds
+ */
+@Override
+public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds)
+{
+	super.onRestored(context, oldWidgetIds, newWidgetIds);
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget onRestored");
+	updateAll(context);
 }
 
 private void onWidgetClic(Context context, Intent intent)
 {
+	Report report = Report.getInstance(context);
 	AsyncSauvegardeManager manager = AsyncSauvegardeManager.getInstance(context);
 	if (AsyncSauvegarde.enCours(context))
 	{
+		report.historique("Annulation de la sauvegarde par le widget");
+		report.log(Report.NIVEAU.DEBUG, "Widget clic: annulation");
 		manager.cancel();
 		Toast.makeText(context, "Annulation de la sauvegarde", Toast.LENGTH_SHORT).show();
 	}
 	else
 	{
-
+		report.historique("Démarrage de la sauvegarde de tous les profils par le widget");
+		report.log(Report.NIVEAU.DEBUG, "Widget clic: démarrage");
 		manager.startSauvegarde(AsyncSauvegarde.TOUS_LES_PROFILS, AsyncSauvegardeManager.TYPE_LAUNCHED.WIDGET);
-		Toast.makeText(context, "Sauvegarde lancée", Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, "Lancement de la sauvegarde", Toast.LENGTH_SHORT).show();
 	}
 }
 
