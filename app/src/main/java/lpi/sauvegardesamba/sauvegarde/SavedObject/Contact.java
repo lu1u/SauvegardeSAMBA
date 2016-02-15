@@ -104,17 +104,18 @@ public Contact(Cursor cursor, Context context)
 public static Cursor getList(Context context)
 {
 	Cursor cursor = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, _colonneS_CONTACT, null, null, null);
-	try
-	{
-		_colonneID = cursor.getColumnIndexOrThrow(BaseColumns._ID);
-		_colonneDisplayName = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME);
-		_colonneHasPhoneNumber = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER);
-		_colonneTimesUpdated = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.TIMES_CONTACTED);
-		_colonneLastContacted = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.LAST_TIME_CONTACTED);
-	} catch (Exception e)
-	{
-		return null;
-	}
+	if (cursor != null)
+		try
+		{
+			_colonneID = cursor.getColumnIndexOrThrow(BaseColumns._ID);
+			_colonneDisplayName = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME);
+			_colonneHasPhoneNumber = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER);
+			_colonneTimesUpdated = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.TIMES_CONTACTED);
+			_colonneLastContacted = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.LAST_TIME_CONTACTED);
+		} catch (Exception e)
+		{
+			return null;
+		}
 
 	return cursor;
 }

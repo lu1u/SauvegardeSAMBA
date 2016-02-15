@@ -38,7 +38,7 @@ public final long _duration;
 public final int _type;
 public final String _address;
 
-public Appel(Cursor cursor, Context context)
+public Appel(@NonNull Cursor cursor, @NonNull Context context)
 {
 	_date = cursor.getLong(_colDate);
 	_duration = cursor.getLong(_colDuration);
@@ -48,24 +48,24 @@ public Appel(Cursor cursor, Context context)
 }
 
 @Nullable
-public static Cursor getList(Context context)
+public static Cursor getList(@NonNull Context context)
 {
 	if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED)
 	{
 		return null;
 	}
 	Cursor cursor = context.getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI, COLONNES, null, null, null);
-
-	try
-	{
-		_colNumber = cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER);
-		_colDate = cursor.getColumnIndexOrThrow(CallLog.Calls.DATE);
-		_colDuration = cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION);
-		_colType = cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE);
-	} catch (IllegalArgumentException e)
-	{
-		return null;
-	}
+	if (cursor != null)
+		try
+		{
+			_colNumber = cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER);
+			_colDate = cursor.getColumnIndexOrThrow(CallLog.Calls.DATE);
+			_colDuration = cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION);
+			_colType = cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE);
+		} catch (Exception e)
+		{
+			return null;
+		}
 
 	return cursor;
 }
@@ -101,7 +101,8 @@ public String getCategorie()
 	return _address;
 }
 
-public String getFileName(Context context)
+@NonNull
+public String getFileName(@NonNull Context context)
 {
 	return cleanFileName(Nom(context)) + ".txt";
 }

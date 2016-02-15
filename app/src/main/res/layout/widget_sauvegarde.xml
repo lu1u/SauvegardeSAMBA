@@ -25,26 +25,6 @@
         android:scaleType="center"
         android:src="@mipmap/ic_play"/>
 
-    <TextView
-        android:id="@+id/textViewProfil"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|top"
-        android:textAlignment="center"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#FFFFFF"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/textViewProgress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:textAlignment="center"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#FFFFFF"
-        android:visibility="gone"/>
-
     <ProgressBar
         android:id="@+id/progressBarWidget"
         android:layout_width="@dimen/taille_icone_widget"
@@ -58,7 +38,7 @@
         android:maxWidth="@dimen/taille_icone_widget"
         android:minHeight="@dimen/taille_icone_widget"
         android:minWidth="@dimen/taille_icone_widget"
-        android:progressDrawable="@drawable/progress_widget"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        />
 
 </FrameLayout>

@@ -1,7 +1,14 @@
 package lpi.sauvegardesamba.utils;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import lpi.sauvegardesamba.database.DatabaseHelper;
 
 
 /**
@@ -9,38 +16,39 @@ import android.content.SharedPreferences;
  */
 public class Preferences
 {
-public static final String PREFERENCES = "com.lpi.sauvegarde.preferences"; //$NON-NLS-1$
-public static final String PREF_NON_INITIALISEE = "@@non_initialise@@";
 private static final String PREF_SAUVEGARDE_EN_COURS = "SauvegardeEnCours"; //$NON-NLS-1$
-private static final String PREF_SAUVEGARDE_AUTO_HEURE = "HeureAutomatique.Heure"; //$NON-NLS-1$
-private static final String PREF_SAUVEGARDE_AUTO_MINUTE = "HeureAutomatique.Minute"; //$NON-NLS-1$
-private static final String PREF_SAUVEGARDE_AUTO_ACTIVEE = "SauvegardeAutomatique"; //$NON-NLS-1$
-private static final String PREF_REPERTOIRE_SAUVEGARDE = "Repertoire.Sauvegarde"; //$NON-NLS-1$
-private static final String PREF_REPERTOIRE_CONTACTS = "Repertoire.Contacts";
-private static final String PREF_REPERTOIRE_APPELS = "Repertoire.Appels";
-private static final String PREF_REPERTOIRE_MESSAGES = "Repertoire.Messages";
-private static final String PREF_REPERTOIRE_PHOTOS = "Repertoire.Photos";
-private static final String PREF_REPERTOIRE_VIDEOS = "Repertoire.Videos";
-private static final String PREF_DETECTE_CONNEXION_WIFI = "Detection.WIFI";
-private static final String PREF_REGROUPER_APPELS   = "Regrouper.Appels";
-private static final String PREF_REGROUPER_MESSAGES = "Regrouper.Messages";
-private static final String PREF_REGROUPER_PHOTOS   = "Regrouper.Photos";
-private static final String PREF_REGROUPER_VIDEOS   = "Regrouper.Videos";
+private static final String PREF_SAUVEGARDE_AUTO_HEURE = "AutoHeure"; //$NON-NLS-1$
+private static final String PREF_SAUVEGARDE_AUTO_MINUTE = "AutoMinute"; //$NON-NLS-1$
+private static final String PREF_SAUVEGARDE_AUTO_ACTIVEE = "AutoActivee"; //$NON-NLS-1$
+private static final String PREF_DETECTE_CONNEXION_WIFI = "ConnxionWIFI";
+private static final String PREF_REGROUPER_APPELS = "RegroupeAppels";
+private static final String PREF_REGROUPER_MESSAGES = "RegroupeMessages";
+private static final String PREF_REGROUPER_PHOTOS = "RegroupePhotos";
+private static final String PREF_REGROUPER_VIDEOS = "RegroupeVideos";
 private static final String PREF_THEME = "Theme";
+private static final String PREF_REPERTOIRE_SAUVEGARDE = "RepSauvegarde"; //$NON-NLS-1$
+private static final String PREF_REPERTOIRE_CONTACTS = "RepContacts";
+private static final String PREF_REPERTOIRE_APPELS = "RepAppels";
+private static final String PREF_REPERTOIRE_MESSAGES = "RepMessages";
+private static final String PREF_REPERTOIRE_PHOTOS = "RepPhotos";
+private static final String PREF_REPERTOIRE_VIDEOS = "RepVideos";
+
+
 private static Preferences INSTANCE = null;
-private SharedPreferences _preferences;
-private SharedPreferences.Editor _editor;
+private SQLiteDatabase database;
+private DatabaseHelper dbHelper;
 
 private Preferences(Context context)
 {
-	_preferences = context.getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE);
-	_editor = null;
+	dbHelper = new DatabaseHelper(context);
+	database = dbHelper.getWritableDatabase();
 }
 
 /**
  * Point d'accès pour l'instance unique du singleton
  */
-public static synchronized Preferences getInstance(Context context)
+@NonNull
+public static synchronized Preferences getInstance(@NonNull Context context)
 {
 	if (INSTANCE == null)
 	{
@@ -49,63 +57,123 @@ public static synchronized Preferences getInstance(Context context)
 	return INSTANCE;
 }
 
-@Override
-public void finalize() throws Throwable
-{
-	if (_editor != null)
-	{
-		_editor.apply();
-	}
-
-	super.finalize();
-}
-
-public void save()
-{
-	if (_editor != null)
-		_editor.apply();
-}
-
-public void putLong(String name, long v)
-{
-	if (_editor == null)
-		_editor = _preferences.edit();
-
-	_editor.putLong(name, v);
-	_editor.commit();
-}
-
 
 public void putString(String name, String s)
 {
-	if (_editor == null)
-		_editor = _preferences.edit();
+	ContentValues values = new ContentValues();
+	values.put(DatabaseHelper.COLONNE_PREF_STRING_NAME, name);
+	values.put(DatabaseHelper.COLONNE_PREF_STRING_VALEUR, s);
 
-	_editor.putString(name, s);
-	_editor.commit();
+	database.beginTransaction();
+	boolean present = trouveId(DatabaseHelper.TABLE_PREFERENCES_STRING, DatabaseHelper.COLONNE_PREF_STRING_NAME, name);
+	try
+	{
+		if (present)
+			database.update(DatabaseHelper.TABLE_PREFERENCES_STRING, values, DatabaseHelper.COLONNE_PREF_STRING_NAME + "=?", new String[]{name});
+		else
+			database.insert(DatabaseHelper.TABLE_PREFERENCES_STRING, null, values);
+		database.setTransactionSuccessful();
+	} catch (Exception e)
+	{
+		Log.e("SAMBA", e.getMessage());
+	} finally
+	{
+		database.endTransaction();
+	}
+}
+
+private boolean trouveId(String tableName, String colonneID, String name)
+{
+	Cursor c = database.query(tableName, new String[]{colonneID}, colonneID + " =?", new String[]{name}, null, null, null, null);
+	boolean result = false;
+
+	if (c != null)
+	{
+		if (c.moveToFirst()) //if the row exist then return the id
+			result = true;
+		c.close();
+	}
+	return result;
+}
+
+public String getString(String name, String defaut)
+{
+	String result = defaut;
+	try
+	{
+		String where = DatabaseHelper.COLONNE_PREF_STRING_NAME + " = \"" + name + "\"";
+		Cursor cursor = database.query(DatabaseHelper.TABLE_PREFERENCES_STRING, null, where, null, null, null, null);
+		if (cursor != null)
+		{
+			if (cursor.moveToFirst())
+				result = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLONNE_PREF_STRING_VALEUR));
+			cursor.close();
+		}
+	} catch (SQLException e)
+	{
+		e.printStackTrace();
+	}
+	return result;
 }
 
 public void putInt(String name, int i)
 {
-	if (_editor == null)
-		_editor = _preferences.edit();
+	ContentValues values = new ContentValues();
+	values.put(DatabaseHelper.COLONNE_PREF_INT_NAME, name);
+	values.put(DatabaseHelper.COLONNE_PREF_INT_VALEUR, i);
 
-	_editor.putInt(name, i);
-	_editor.commit();
+	database.beginTransaction();
+	boolean present = trouveId(DatabaseHelper.TABLE_PREFERENCES_INT, DatabaseHelper.COLONNE_PREF_INT_NAME, name);
+	try
+	{
+		if (present)
+			database.update(DatabaseHelper.TABLE_PREFERENCES_INT, values, DatabaseHelper.COLONNE_PREF_INT_NAME + "=?", new String[]{name});
+		else
+			database.insert(DatabaseHelper.TABLE_PREFERENCES_INT, null, values);
+		database.setTransactionSuccessful();
+	} catch (Exception e)
+	{
+		Log.e("SAMBA", e.getMessage());
+	} finally
+	{
+		database.endTransaction();
+	}
+}
+
+public int getInt(String name, int defaut)
+{
+	int result = defaut;
+	try
+	{
+		String where = DatabaseHelper.COLONNE_PREF_INT_NAME + " = \"" + name + "\"";
+		Cursor cursor = database.query(DatabaseHelper.TABLE_PREFERENCES_INT, null, where, null, null, null, null);
+		if (cursor != null)
+		{
+			if (cursor.moveToFirst())
+				result = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLONNE_PREF_INT_VALEUR));
+			cursor.close();
+		}
+	} catch (SQLException e)
+	{
+		e.printStackTrace();
+	}
+	return result;
 }
 
 public void putBool(String name, boolean b)
 {
-	if (_editor == null)
-		_editor = _preferences.edit();
+	putInt(name, b ? 1 : 0);
+}
 
-	_editor.putBoolean(name, b);
-	_editor.commit();
+public boolean getBool(String name, boolean defaut)
+{
+	int res = getInt(name, defaut ? 1 : 0);
+	return (res == 0) ? false : true;
 }
 
 public boolean getSauvegardeEnCours()
 {
-	return _preferences.getBoolean(PREF_SAUVEGARDE_EN_COURS, false);
+	return getBool(PREF_SAUVEGARDE_EN_COURS, false);
 }
 
 public void setSauvegardeEnCours(boolean b)
@@ -116,7 +184,7 @@ public void setSauvegardeEnCours(boolean b)
 
 public int getSauvegardeAutoHeure()
 {
-	return _preferences.getInt(PREF_SAUVEGARDE_AUTO_HEURE, 0);
+	return getInt(PREF_SAUVEGARDE_AUTO_HEURE, 0);
 }
 
 public void setPrefSauvegardeAutoHeure(int p)
@@ -126,7 +194,7 @@ public void setPrefSauvegardeAutoHeure(int p)
 
 public int getSauvegardeAutoMinute()
 {
-	return _preferences.getInt(PREF_SAUVEGARDE_AUTO_MINUTE, 0);
+	return getInt(PREF_SAUVEGARDE_AUTO_MINUTE, 0);
 }
 
 public void setPrefSauvegardeAutoMinute(int p)
@@ -136,7 +204,7 @@ public void setPrefSauvegardeAutoMinute(int p)
 
 public boolean getSauvegarderAuto()
 {
-	return _preferences.getBoolean(PREF_SAUVEGARDE_AUTO_ACTIVEE, false);
+	return getBool(PREF_SAUVEGARDE_AUTO_ACTIVEE, false);
 }
 
 public void setSauvegardeAuto(boolean b)
@@ -146,33 +214,48 @@ public void setSauvegardeAuto(boolean b)
 
 public String getPrefRepertoireSauvegarde()
 {
-	return _preferences.getString(PREF_REPERTOIRE_SAUVEGARDE, "SauvegardeSAMBA");
+	return getString(PREF_REPERTOIRE_SAUVEGARDE, "SauvegardeSAMBA");
 }
 
-public void setPrefRepertoireSauvegarde(String rep) { putString(PREF_REPERTOIRE_SAUVEGARDE, rep); }
+public void setPrefRepertoireSauvegarde(String rep)
+{
+	putString(PREF_REPERTOIRE_SAUVEGARDE, rep);
+}
 
-public String getPrefRepertoireContacts() { return _preferences.getString(PREF_REPERTOIRE_CONTACTS, "Contacts"); }
+public String getPrefRepertoireContacts()
+{
+	return getString(PREF_REPERTOIRE_CONTACTS, "Contacts");
+}
 
 public void setPrefRepertoireContacts(String rep)
 {
 	putString(PREF_REPERTOIRE_CONTACTS, rep);
 }
 
-public String getPrefRepertoireAppels() { return _preferences.getString(PREF_REPERTOIRE_APPELS, "Appels"); }
+public String getPrefRepertoireAppels()
+{
+	return getString(PREF_REPERTOIRE_APPELS, "Appels");
+}
 
 public void setPrefRepertoireAppels(String rep)
 {
 	putString(PREF_REPERTOIRE_APPELS, rep);
 }
 
-public String getPrefRepertoireMessages() { return _preferences.getString(PREF_REPERTOIRE_MESSAGES, "Messages"); }
+public String getPrefRepertoireMessages()
+{
+	return getString(PREF_REPERTOIRE_MESSAGES, "Messages");
+}
 
 public void setPrefRepertoireMessages(String rep)
 {
 	putString(PREF_REPERTOIRE_MESSAGES, rep);
 }
 
-public String getPrefRepertoirePhotos() { return _preferences.getString(PREF_REPERTOIRE_PHOTOS, "Photos"); }
+public String getPrefRepertoirePhotos()
+{
+	return getString(PREF_REPERTOIRE_PHOTOS, "Photos");
+}
 
 public void setPrefRepertoirePhotos(String rep)
 {
@@ -181,7 +264,7 @@ public void setPrefRepertoirePhotos(String rep)
 
 public String getPrefRepertoireVideos()
 {
-	return _preferences.getString(PREF_REPERTOIRE_VIDEOS, "Videos");
+	return getString(PREF_REPERTOIRE_VIDEOS, "Videos");
 }
 
 public void setPrefRepertoireVideos(String rep)
@@ -189,22 +272,50 @@ public void setPrefRepertoireVideos(String rep)
 	putString(PREF_REPERTOIRE_VIDEOS, rep);
 }
 
-public boolean getRegrouperAppels() { return _preferences.getBoolean(PREF_REGROUPER_APPELS, true) ;}
-public void setPrefRegrouperAppels(boolean regrouper ){ putBool(PREF_REGROUPER_APPELS, regrouper);}
+public boolean getRegrouperAppels()
+{
+	return getBool(PREF_REGROUPER_APPELS, true);
+}
 
-public boolean getRegrouperMessages() { return _preferences.getBoolean(PREF_REGROUPER_MESSAGES, true) ;}
-public void setPrefRegrouperMessages(boolean regrouper ){ putBool(PREF_REGROUPER_MESSAGES, regrouper);}
+public void setPrefRegrouperAppels(boolean regrouper)
+{
+	putBool(PREF_REGROUPER_APPELS, regrouper);
+}
 
-public boolean getRegrouperPhotos() { return _preferences.getBoolean(PREF_REGROUPER_PHOTOS, true) ;}
-public void setPrefRegrouperPhotos(boolean regrouper ){ putBool(PREF_REGROUPER_PHOTOS, regrouper);}
+public boolean getRegrouperMessages()
+{
+	return getBool(PREF_REGROUPER_MESSAGES, true);
+}
 
-public boolean getRegrouperVideos() { return _preferences.getBoolean(PREF_REGROUPER_VIDEOS, true) ;}
-public void setPrefRegrouperVideos(boolean regrouper ){ putBool(PREF_REGROUPER_VIDEOS, regrouper);}
+public void setPrefRegrouperMessages(boolean regrouper)
+{
+	putBool(PREF_REGROUPER_MESSAGES, regrouper);
+}
+
+public boolean getRegrouperPhotos()
+{
+	return getBool(PREF_REGROUPER_PHOTOS, true);
+}
+
+public void setPrefRegrouperPhotos(boolean regrouper)
+{
+	putBool(PREF_REGROUPER_PHOTOS, regrouper);
+}
+
+public boolean getRegrouperVideos()
+{
+	return getBool(PREF_REGROUPER_VIDEOS, true);
+}
+
+public void setPrefRegrouperVideos(boolean regrouper)
+{
+	putBool(PREF_REGROUPER_VIDEOS, regrouper);
+}
 
 
 public boolean getDetectionWIFI()
 {
-	return _preferences.getBoolean(PREF_DETECTE_CONNEXION_WIFI, true);
+	return getBool(PREF_DETECTE_CONNEXION_WIFI, true);
 }
 
 public void setDetectionWIFI(boolean regrouper)
@@ -214,7 +325,7 @@ public void setDetectionWIFI(boolean regrouper)
 
 public int getTheme()
 {
-	return _preferences.getInt(PREF_THEME, 0);
+	return getInt(PREF_THEME, 0);
 }
 
 public void setTheme(int p)

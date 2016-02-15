@@ -1,4 +1,4 @@
-package values;
+package widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import lpi.sauvegardesamba.R;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegardeManager;
+import lpi.sauvegardesamba.utils.Preferences;
 import lpi.sauvegardesamba.utils.Report;
 import lpi.sauvegardesamba.utils.Utils;
 
@@ -23,7 +25,7 @@ public class SauvegardeAppWidget extends AppWidgetProvider
 {
 public static final String WIDGET_ACTION = "lpi.SAMBAckup.widgetclic";
 
-static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+void updateAppWidget(@NonNull Context context, @NonNull AppWidgetManager appWidgetManager,
                             int appWidgetId)
 {
 	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget updateAppWidget id=" + appWidgetId);
@@ -37,20 +39,30 @@ static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
 	if (AsyncSauvegarde.enCours(context))
 	{
 		// Une sauvegarde est en cours
-		views.setImageViewBitmap(R.id.imageView, Utils.getBitmap(context, R.mipmap.ic_stop));
-		views.setViewVisibility(R.id.progressBarWidget, View.VISIBLE);
-		//views.setViewVisibility(R.id.textViewProfil, View.GONE);
-		//views.setViewVisibility(R.id.textViewProgress, View.GONE);
+		Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: Sauvegarde en cours" + appWidgetId);
+		updateSauvegardeEnCours(context, views);
 	}
 	else
 	{
 		// Pas de sauvegarde en cours
-		views.setImageViewBitmap(R.id.imageView, Utils.getBitmap(context, R.mipmap.ic_play));
-		views.setViewVisibility(R.id.progressBarWidget, View.GONE);
-		views.setProgressBar(R.id.progressBarWidget, 1, 10, true);
+		Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: Pas de sauvegarde en cours" + appWidgetId);
+		updatePasDeSauvegardeEnCours(context, views);
 	}
 	// Instruct the widget manager to update the widget
 	appWidgetManager.updateAppWidget(appWidgetId, views);
+}
+
+protected void updatePasDeSauvegardeEnCours(Context context, RemoteViews views)
+{
+	views.setImageViewBitmap(R.id.imageView, Utils.getBitmap(context, R.mipmap.ic_play));
+	views.setViewVisibility(R.id.progressBarWidget, View.GONE);
+	//views.setProgressBar(R.id.progressBarWidget, 1, 10, true);
+}
+
+protected void updateSauvegardeEnCours(Context context, RemoteViews views)
+{
+	views.setImageViewBitmap(R.id.imageView, Utils.getBitmap(context, R.mipmap.ic_stop));
+	views.setViewVisibility(R.id.progressBarWidget, View.VISIBLE);
 }
 
 /***
@@ -59,16 +71,16 @@ static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
  * @param context
  * @param views
  */
-private static void setClickListener(Context context, RemoteViews views)
+private void setClickListener(@NonNull Context context, @NonNull RemoteViews views)
 {
-	Intent intent = new Intent(context, SauvegardeAppWidget.class);
+	Intent intent = new Intent(context, this.getClass());
 	intent.setAction(WIDGET_ACTION);
 	PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	views.setOnClickPendingIntent(R.id.widgetLayout, pendingIntent);
 }
 
 @Override
-public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds)
+public void onUpdate(@NonNull Context context, @NonNull AppWidgetManager appWidgetManager, @NonNull int[] appWidgetIds)
 {
 	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: onUpdate");
 	// There may be multiple widgets active, so update all of them
@@ -79,7 +91,7 @@ public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] a
 }
 
 @Override
-public void onEnabled(Context context)
+public void onEnabled(@NonNull Context context)
 {
 	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: onEnabled");
 	updateAll(context);
@@ -91,7 +103,7 @@ public void onEnabled(Context context)
  * @param intent  The Intent being received.
  */
 @Override
-public void onReceive(Context context, Intent intent)
+public void onReceive(@NonNull Context context, @NonNull Intent intent)
 {
 	super.onReceive(context, intent);
 	String action = intent.getAction();
@@ -105,9 +117,14 @@ public void onReceive(Context context, Intent intent)
 		onBoot(context, intent);
 }
 
-private void onBoot(Context context, Intent intent)
+private void onBoot(@NonNull Context context, @NonNull Intent intent)
 {
-	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "onBoot");
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: onBoot");
+	// Redemarrage, une sauvegarde ne peut donc pas etre en cours,
+	// on l'enregistre pour le cas ou la machine aurait ete eteinte en plein milieu d'une
+	// sauvegarde
+	Preferences.getInstance(context).setSauvegardeEnCours(false);
+
 	updateAll(context);
 }
 
@@ -117,33 +134,23 @@ private void onBoot(Context context, Intent intent)
  * @param context
  * @param intent
  */
-private void onInfoFromAsyncSave(Context context, Intent intent)
+protected void onInfoFromAsyncSave(@NonNull Context context, @NonNull Intent intent)
 {
 	String commande = intent.getStringExtra(AsyncSauvegarde.COMMAND);
 	if (AsyncSauvegarde.COMMAND_STARTED.equals(commande))
 	{
+		Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: receive " + commande);
 		updateAll(context);
 
 	}
 	else if (AsyncSauvegarde.COMMAND_FINISHED.equals(commande))
 	{
+		Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget: receive " + commande);
 		updateAll(context);
-
 	}
-/*	else
-	if ( AsyncSauvegarde.COMMAND_PROFIL.equals(commande))
-	{
-
-	}
-	else
-	if ( AsyncSauvegarde.COMMAND_PROGRESS.equals(commande))
-	{
-
-	}
-    */
 }
 
-private void updateAll(Context context)
+protected void updateAll(@NonNull Context context)
 {
 	AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 	ComponentName thisAppWidget = new ComponentName(context.getPackageName(), this.getClass().getName());
@@ -170,7 +177,7 @@ private void updateAll(Context context)
  * @param newWidgetIds
  */
 @Override
-public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds)
+public void onRestored(@NonNull Context context, int[] oldWidgetIds, int[] newWidgetIds)
 {
 	super.onRestored(context, oldWidgetIds, newWidgetIds);
 	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Widget onRestored");

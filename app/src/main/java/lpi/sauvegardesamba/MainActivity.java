@@ -199,9 +199,18 @@ public boolean onOptionsItemSelected(MenuItem item)
 			return true;
 
 		case R.id.action_nouveau_profil:
+		{
 			Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
 			startActivityForResult(intent, RESULT_EDIT_PROFIL);
-			break;
+			return true;
+		}
+
+		case R.id.action_database:
+		{
+			Intent intent = new Intent(MainActivity.this, DisplayDatabaseActivity.class);
+			startActivityForResult(intent, RESULT_REPORT);
+			return true;
+		}
 	}
 
 	return super.onOptionsItemSelected(item);

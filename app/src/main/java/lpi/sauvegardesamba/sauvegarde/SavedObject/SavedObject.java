@@ -180,6 +180,8 @@ public boolean quelqueChoseASauvegarder()
 	return true;
 }
 
+
+@NonNull
 public abstract String Nom(@NonNull Context context);
 
 /***

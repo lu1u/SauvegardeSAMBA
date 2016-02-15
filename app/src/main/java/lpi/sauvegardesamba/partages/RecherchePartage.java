@@ -8,7 +8,9 @@ import android.os.AsyncTask;
 import java.util.ArrayList;
 
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
+import lpi.sauvegardesamba.utils.Report;
 
 /**
  * Created by lucien on 26/01/2016.
@@ -52,19 +54,7 @@ protected Void doInBackground(Void... params)
 		ArrayList<String> liste = new ArrayList<>();
 
 		for (SmbFile domaine : domains)
-		{
-			// Recherche des ordinateurs dans chaque domaine
-			SmbFile[] ordinateurs = domaine.listFiles();
-			for (SmbFile ordinateur : ordinateurs)
-			{
-				SmbFile[] partages = ordinateur.listFiles();
-				for (SmbFile partage : partages)
-				{
-					String name = partage.getPath();
-					ajouteName(liste, name);
-				}
-			}
-		}
+			scanDomain(domaine, liste);
 
 		intent.putStringArrayListExtra(Partages.LISTE_RESULT, liste);
 		intent.putExtra(Partages.RESULT_RECHERCHE, Partages.RESULT_OK);
@@ -79,15 +69,57 @@ protected Void doInBackground(Void... params)
 	return null;
 }
 
+private void scanDomain(SmbFile domaine, ArrayList<String> liste)
+{
+	try
+	{
+		// Recherche des ordinateurs dans chaque domaine
+		SmbFile[] ordinateurs = domaine.listFiles();
+		for (SmbFile ordinateur : ordinateurs)
+			scanOrdinateur(ordinateur, liste);
+	} catch (SmbException e)
+	{
+		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, "Scan de domaine: " + domaine.getPath());
+		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, e);
+	}
+}
+
+private void scanOrdinateur(SmbFile ordinateur, ArrayList<String> liste)
+{
+	try
+	{
+		SmbFile[] partages = ordinateur.listFiles();
+
+		for (SmbFile partage : partages)
+		{
+			String name = partage.getPath();
+			ajouteName(liste, name);
+		}
+	} catch (SmbException e)
+	{
+		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, "Scan d'ordinateur: " + ordinateur.getPath());
+		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, e);
+	}
+}
+
+/***
+ * Ajoute un nom de partage a la liste, a condition que ça ne soit pas un partage administratif
+ *
+ * @param liste
+ * @param name
+ */
 private void ajouteName(ArrayList<String> liste, String name)
 {
-	if (name.startsWith("smb://"))
-		name = name.substring("smb://".length());
-
 	while (name.endsWith("/"))
 		name = name.substring(0, name.length() - 1);
+
 	if (!name.endsWith("$"))   // Partage administratif
+	{
+		if (name.startsWith("smb://"))
+			name = name.substring("smb://".length());
+
 		liste.add(name);
+	}
 }
 
 

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.support.annotation.NonNull;
 
 import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
@@ -21,7 +22,7 @@ public class AlarmReceiver extends BroadcastReceiver
 {
 
 @Override
-public void onReceive(Context context, Intent intent)
+public void onReceive(@NonNull Context context, @NonNull Intent intent)
 {
 	String action = intent.getAction();
 	if (Plannificateur.COMMANDE_SAVE_ALARM.equals(action))
@@ -31,6 +32,10 @@ public void onReceive(Context context, Intent intent)
 	else if ("android.intent.action.BOOT_COMPLETED".equals(action) //$NON-NLS-1$
 			|| "android.intent.action.QUICKBOOT_POWERON".equals(action)) //$NON-NLS-1$
 	{
+		// Redemarrage, une sauvegarde ne peut donc pas etre en cours,
+		// on l'enregistre pour le cas ou la machine aurait ete eteinte en plein milieu d'une
+		// sauvegarde
+		Preferences.getInstance(context).setSauvegardeEnCours(false);
 
 		Plannificateur plannificateur = new Plannificateur(context);
 		plannificateur.plannifieSauvegarde();

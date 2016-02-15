@@ -22,7 +22,7 @@ private DatabaseHelper dbHelper;
 private TracesDatabase(Context context)
 {
 	dbHelper = new DatabaseHelper(context);
-	database = dbHelper.getReadableDatabase();
+	database = dbHelper.getWritableDatabase();
 }
 
 /**

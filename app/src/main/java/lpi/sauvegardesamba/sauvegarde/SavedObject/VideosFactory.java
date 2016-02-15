@@ -2,6 +2,7 @@ package lpi.sauvegardesamba.sauvegarde.SavedObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.utils.Preferences;
@@ -26,6 +27,7 @@ protected boolean regrouperObjets(Context context)
 }
 
 @Override
+@NonNull
 protected String getMessage(SavedObjectFactory.MESSAGES message, Object... arguments)
 {
 	switch( message )
@@ -49,7 +51,7 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 }
 
 @Override
-protected String getRepertoireObjets(Context context)
+protected String getRepertoireObjets(@NonNull Context context)
 {
 	Preferences pref = Preferences.getInstance(context);
 	return pref.getPrefRepertoireVideos();
@@ -62,6 +64,7 @@ protected Cursor getList(Context context)
 }
 
 @Override
+@NonNull
 protected SavedObject creerObjet(Cursor cursor, Context context)
 {
 	return new Video(cursor, context );

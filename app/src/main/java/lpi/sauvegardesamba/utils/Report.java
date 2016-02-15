@@ -38,7 +38,8 @@ private Report(Context context)
  *
  * @param context: le context habituel d'ANdroid, peut être null si l'objet a deja ete utilise
  */
-public static synchronized Report getInstance(Context context)
+@NonNull
+public static synchronized Report getInstance(@NonNull Context context)
 {
 	if (INSTANCE == null)
 	{
@@ -95,12 +96,12 @@ public static String getLocalizedDate()
 	return getLocalizedDate(System.currentTimeMillis());
 }
 
-public void log(NIVEAU niv, String message)
+public void log(NIVEAU niv, @NonNull String message)
 {
 	_tracesDatabase.Ajoute(DatabaseHelper.CalendarToSQLiteDate(null), toInt(niv), message);
 }
 
-public void log(NIVEAU niv, Exception e)
+public void log(NIVEAU niv, @NonNull Exception e)
 {
 	log(niv, e.getLocalizedMessage());
 	for (int i = 0; i < e.getStackTrace().length && i < MAX_BACKTRACE; i++)
@@ -108,7 +109,7 @@ public void log(NIVEAU niv, Exception e)
 
 }
 
-public void historique(String message)
+public void historique(@NonNull String message)
 {
 	_historiqueDatabase.Ajoute(DatabaseHelper.CalendarToSQLiteDate(null), message);
 }

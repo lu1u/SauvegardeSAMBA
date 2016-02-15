@@ -50,6 +50,7 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 }
 
 @Override
+@NonNull
 protected String getRepertoireObjets(@NonNull Context context)
 {
 	Preferences pref = Preferences.getInstance(context);

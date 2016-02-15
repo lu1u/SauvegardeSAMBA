@@ -97,10 +97,9 @@ private synchronized void enCours(boolean encours)
 
 	Preferences pref = Preferences.getInstance(_context);
 	pref.setSauvegardeEnCours(encours);
-	pref.save();
 }
 
-protected Void doInBackground(AsyncSauvegardeManager... params)
+protected Void doInBackground(@NonNull AsyncSauvegardeManager... params)
 {
 	AsyncSauvegardeManager manager = params[0];
 	int profilId = manager._profilId;

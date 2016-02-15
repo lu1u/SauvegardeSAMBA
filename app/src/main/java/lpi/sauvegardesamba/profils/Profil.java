@@ -213,7 +213,7 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 	{
 		if (!IsWifiConnected(context))
 		{
-			report.historique(Nom + ": non connecté au WIFI, annulé");
+			report.historique("Profil " + Nom + ": non connecté au WIFI, annulé");
 			//dlg.notification(context.getString(R.string.non_connecte_wifi));
 			return;
 		}
@@ -221,7 +221,7 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 
 	if ((dlg._type == AsyncSauvegardeManager.TYPE_LAUNCHED.AUTO) && (IntegrationSauvegardeAuto == ProfilsDatabase.S_JAMAIS))
 	{
-		report.historique(Nom + " non actif lors des sauvegardes automatiques");
+		report.historique("Profil " + Nom + " non actif lors des sauvegardes automatiques");
 		//dlg.notification(context.getString(R.string.desactive_sauvegarde_auto));
 		return;
 	}
@@ -236,7 +236,7 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 			sFile.mkdir();
 	} catch (Exception e)
 	{
-		report.historique(Nom + " erreur lors de la création du répertoire");
+		report.historique("Profil " + Nom + " erreur lors de la création du répertoire, non accessible?");
 		report.log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire (repertoire non accessible?)" + path);
 		report.log(Report.NIVEAU.ERROR, e);
 		return;
@@ -274,10 +274,10 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 	if (dlg.isCanceled())
 	{
 		report.log(Report.NIVEAU.WARNING, "Sauvegarde annulée par l'utilisateur");
-		report.historique(Nom + " annulé par l'utilisateur");
+		report.historique("Profil " + Nom + " annulé par l'utilisateur");
 	}
 	else
-		report.historique(Nom + (erreur ? "Erreur détectée" : "Sauvegarde terminée correctement"));
+		report.historique("Profil " + Nom + (erreur ? " Erreur détectée" : " Sauvegarde terminée correctement"));
 }
 
 private boolean Nok(SauvegardeReturnCode sauvegardeReturnCode)

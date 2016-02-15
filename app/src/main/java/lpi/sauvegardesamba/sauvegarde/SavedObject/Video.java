@@ -145,6 +145,7 @@ public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Contex
 }
 
 @Override
+@NonNull
 public String Nom(Context context)
 {
 	return _displayName;

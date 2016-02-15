@@ -44,19 +44,21 @@ public Message(Cursor cursor, Context context)
 static Cursor getList(Context context)
 {
 	Uri u = Uri.parse("content://sms");
-	Cursor cursor;
 	try
 	{
-		cursor = context.getContentResolver().query(u, null, null, null, null);
-		COLONNE_DATE = cursor.getColumnIndexOrThrow(Telephony.Sms.DATE);
-		COLONNE_EXPEDITEUR = cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS);
-		COLONNE_TEXTE = cursor.getColumnIndexOrThrow(Telephony.Sms.BODY);
-		COLONNE_TYPE = cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE);
+		Cursor cursor = context.getContentResolver().query(u, null, null, null, null);
+		if (cursor != null)
+		{
+			COLONNE_DATE = cursor.getColumnIndexOrThrow(Telephony.Sms.DATE);
+			COLONNE_EXPEDITEUR = cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS);
+			COLONNE_TEXTE = cursor.getColumnIndexOrThrow(Telephony.Sms.BODY);
+			COLONNE_TYPE = cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE);
+		}
+		return cursor;
 	} catch (Exception e)
 	{
 		return null;
 	}
-	return cursor;
 }
 
 public String getFileName(Context context)

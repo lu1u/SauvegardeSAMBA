@@ -38,11 +38,11 @@ static private int _colonneDateModified;
 static private int _colonneDateTaken;
 static private int _colonneAbsolutePath;
 static private int _colonneBucketDisplayName;
-public String _absolutePath;
-public String _displayName;
-public long _dateTaken;
-public long _dateModified;
-public String _bucketName;
+public final String _absolutePath;
+public final String _displayName;
+public final long _dateTaken;
+public final long _dateModified;
+public final String _bucketName;
 
 public Photo(Cursor cursor, Context context)
 {
@@ -92,7 +92,6 @@ public String getFileName()
  * Sauvegarde la photo
  *
  * @param smbRoot = chemin vers le repertoire ou sont sauvegardees les photos "smb://{partage}/{sauvegardeSamba}/Photos
- * @param report
  * @param context
  * @throws IOException
  */

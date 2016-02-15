@@ -30,7 +30,7 @@ private DatabaseHelper dbHelper;
 private ProfilsDatabase(Context context)
 {
 	dbHelper = new DatabaseHelper(context);
-	database = dbHelper.getReadableDatabase();
+	database = dbHelper.getWritableDatabase();
 }
 
 /**

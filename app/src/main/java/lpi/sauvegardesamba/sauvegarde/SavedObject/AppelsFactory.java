@@ -51,6 +51,7 @@ protected String getMessage(MESSAGES message, Object... arguments)
 }
 
 @Override
+@NonNull
 protected String getRepertoireObjets(@NonNull Context context)
 {
 	Preferences pref = Preferences.getInstance(context);
@@ -65,6 +66,7 @@ protected Cursor getList(Context context)
 }
 
 @Override
+@NonNull
 protected SavedObject creerObjet(@NonNull Cursor cursor, Context context)
 {
 	return new Appel(cursor, context );

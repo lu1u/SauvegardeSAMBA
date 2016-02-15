@@ -68,7 +68,6 @@ protected void onCreate(Bundle savedInstanceState)
 			{
 				_theme = position;
 				pref.setTheme(_theme);
-				pref.save();
 				TaskStackBuilder.create(a)
 						.addNextIntent(new Intent(a, MainActivity.class))
 						.addNextIntent(a.getIntent())
@@ -132,17 +131,17 @@ public boolean onOptionsItemSelected(MenuItem item)
 public void onOK()
 {
 	boolean erreur = false;
-	if (!isPathValid(R.id.editTextRepertoireSauvegarde))
+	if (isPathIncorrect(R.id.editTextRepertoireSauvegarde))
 		erreur = true;
-	if (!isPathValid(R.id.editTextContacts))
+	if (isPathIncorrect(R.id.editTextContacts))
 		erreur = true;
-	if (!isPathValid(R.id.editTextAppels))
+	if (isPathIncorrect(R.id.editTextAppels))
 		erreur = true;
-	if (!isPathValid(R.id.editTextMessages))
+	if (isPathIncorrect(R.id.editTextMessages))
 		erreur = true;
-	if (!isPathValid(R.id.editTextPhotos))
+	if (isPathIncorrect(R.id.editTextPhotos))
 		erreur = true;
-	if (!isPathValid(R.id.editTextVideos))
+	if (isPathIncorrect(R.id.editTextVideos))
 		erreur = true;
 
 	if (erreur)
@@ -160,7 +159,6 @@ public void onOK()
 	pref.setPrefRegrouperPhotos(((CheckBox) findViewById(R.id.checkBoxRegrouperPhotos)).isChecked());
 	pref.setPrefRegrouperVideos(((CheckBox) findViewById(R.id.checkBoxRegrouperVideos)).isChecked());
 	pref.setTheme(_theme);
-	pref.save();
 	Intent returnIntent = new Intent();
 	returnIntent.setAction(ACTION_SETTINGS_FINISHED);
 	setResult(Activity.RESULT_OK, returnIntent);
@@ -169,18 +167,18 @@ public void onOK()
 	finish();
 }
 
-private boolean isPathValid(int id)
+private boolean isPathIncorrect(int id)
 {
 	final EditText et = (EditText) findViewById(id);
 	String path = et.getText().toString();
 	if (validPath(path))
 	{
 		et.setError(null);
-		return true;
+		return false;
 	}
 
 	et.setError("Veuillez donner un nom de dossier correct");
-	return false;
+	return true;
 }
 
 private boolean validPath(String path)
