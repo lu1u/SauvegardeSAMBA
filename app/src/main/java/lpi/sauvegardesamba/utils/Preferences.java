@@ -32,7 +32,7 @@ private static final String PREF_REPERTOIRE_APPELS = "RepAppels";
 private static final String PREF_REPERTOIRE_MESSAGES = "RepMessages";
 private static final String PREF_REPERTOIRE_PHOTOS = "RepPhotos";
 private static final String PREF_REPERTOIRE_VIDEOS = "RepVideos";
-
+private static final String PREF_DERNIERE_TENTATIVE_ANNULATION = "DerniereAnnulation";
 
 private static Preferences INSTANCE = null;
 private SQLiteDatabase database;
@@ -168,7 +168,7 @@ public void putBool(String name, boolean b)
 public boolean getBool(String name, boolean defaut)
 {
 	int res = getInt(name, defaut ? 1 : 0);
-	return (res == 0) ? false : true;
+	return (res != 0);
 }
 
 public boolean getSauvegardeEnCours()
@@ -331,5 +331,15 @@ public int getTheme()
 public void setTheme(int p)
 {
 	putInt(PREF_THEME, p);
+}
+
+public int getDerniereTentativeAnnulation()
+{
+	return getInt(PREF_DERNIERE_TENTATIVE_ANNULATION, 0);
+}
+
+public void setDerniereTentativeAnnulation(int maintenant)
+{
+	putInt(PREF_DERNIERE_TENTATIVE_ANNULATION, maintenant);
 }
 }

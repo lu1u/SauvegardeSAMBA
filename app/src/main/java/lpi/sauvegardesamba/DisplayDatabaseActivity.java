@@ -29,8 +29,6 @@ import lpi.sauvegardesamba.database.WithIdCursorWrapper;
 
 public class DisplayDatabaseActivity extends AppCompatActivity
 {
-private SQLiteDatabase database;
-private DatabaseHelper dbHelper;
 private String[] _tables;
 
 @Override
@@ -62,8 +60,8 @@ private void initSpinner(final Context context)
 	final Spinner spin = (Spinner) findViewById(R.id.spinner);
 	if (spin == null)
 		return;
-	dbHelper = new DatabaseHelper(context);
-	database = dbHelper.getWritableDatabase();
+	DatabaseHelper dbHelper = new DatabaseHelper(context);
+	final SQLiteDatabase database = dbHelper.getWritableDatabase();
 
 	_tables = getTables(context, database);
 	spin.setAdapter(new MyAdapter(context, _tables));

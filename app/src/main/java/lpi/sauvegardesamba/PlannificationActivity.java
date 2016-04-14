@@ -214,8 +214,7 @@ public void onOK()
 	_pref.setDetectionWIFI(_detectionWIFI.isChecked());
 	_pref.setPrefSauvegardeAutoHeure(_Heure);
 	_pref.setPrefSauvegardeAutoMinute(_Minute);
-	Plannificateur p = new Plannificateur(this);
-	p.plannifieSauvegarde();
+	Plannificateur.plannifieSauvegarde(this);
 
 	Intent returnIntent = new Intent();
 	returnIntent.setAction(ACTION_PLANNIFICATION_FINISHED);

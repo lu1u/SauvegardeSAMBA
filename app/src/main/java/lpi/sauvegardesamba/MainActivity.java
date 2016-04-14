@@ -145,8 +145,7 @@ protected void onCreate(Bundle savedInstanceState)
 
 	InitProfils();
 
-	Plannificateur p = new Plannificateur(this);
-	p.plannifieSauvegarde();
+	Plannificateur.plannifieSauvegarde(this);
 }
 
 @Override
@@ -205,12 +204,12 @@ public boolean onOptionsItemSelected(MenuItem item)
 			return true;
 		}
 
-		case R.id.action_database:
+		/*case R.id.action_database:
 		{
 			Intent intent = new Intent(MainActivity.this, DisplayDatabaseActivity.class);
 			startActivityForResult(intent, RESULT_REPORT);
 			return true;
-		}
+		}    */
 	}
 
 	return super.onOptionsItemSelected(item);
@@ -434,8 +433,7 @@ protected void onResume()
 		Preferences pref = Preferences.getInstance(this);
 		if (pref.getSauvegarderAuto())
 		{
-			Plannificateur p = new Plannificateur(this);
-			((TextView) findViewById(R.id.textViewStatusSauvegardePlannifiee)).setText(p.getTextProchaineSauvegarde(null));
+			((TextView) findViewById(R.id.textViewStatusSauvegardePlannifiee)).setText(Plannificateur.getTextProchaineSauvegarde(this, null));
 		}
 		else
 			((TextView) findViewById(R.id.textViewStatusSauvegardePlannifiee)).setText("Pas de sauvegarde automatique plannifiée");

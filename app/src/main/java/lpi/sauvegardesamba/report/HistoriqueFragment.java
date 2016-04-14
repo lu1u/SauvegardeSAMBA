@@ -1,7 +1,6 @@
 package lpi.sauvegardesamba.report;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +10,6 @@ import lpi.sauvegardesamba.MainActivity;
 import lpi.sauvegardesamba.R;
 import lpi.sauvegardesamba.database.HistoriqueDatabase;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HistoriqueFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HistoriqueFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HistoriqueFragment extends ReportFragment
 {
 
@@ -65,7 +56,6 @@ public void Vide()
 	db.Vide();
 	_adapter.changeCursor(db.getCursor());
 	MainActivity.MessageNotification(getView(), "Historique effacé");
-
 }
 
 

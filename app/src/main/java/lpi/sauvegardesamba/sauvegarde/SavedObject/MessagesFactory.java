@@ -44,6 +44,8 @@ protected String getMessage(MESSAGES message, Object... arguments)
 			return String.format( "Erreur lors de la sauvegarde du message dans le répertoire %s", arguments) ;
 		case INACTIF:
 			return "Sauvegarde des messages non active" ;
+		case SAUVEGARDES_SUR:
+			return String.format("%d nouveaux messages sauvegardés sur %d existants", arguments);
 
 		default:
 			return "?!?" ;

@@ -23,15 +23,6 @@ import lpi.sauvegardesamba.utils.Report;
  */
 public class Video extends SavedObject
 {
-private static String[] COLONNES =
-		{
-				MediaStore.Video.Media.DATA,
-				MediaStore.Video.Media.DISPLAY_NAME,
-				MediaStore.Video.Media.DATE_MODIFIED,
-				MediaStore.Video.Media.DATE_TAKEN,
-				MediaStore.Video.Media.DATE_ADDED,
-				MediaStore.Video.Media.BUCKET_DISPLAY_NAME
-		};
 static private int _colonneAbsolutePath;
 static private int _colonneDisplayName;
 static private int _colonneDateModified;
@@ -56,7 +47,7 @@ public Video(Cursor cursor, Context context)
 public static Cursor getList(Context context)
 {
 	Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-			COLONNES,
+			null,
 			null,  //$NON-NLS-1$
 			null,
 			null);
@@ -146,7 +137,7 @@ public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Contex
 
 @Override
 @NonNull
-public String Nom(Context context)
+public String Nom(@NonNull Context context)
 {
 	return _displayName;
 }

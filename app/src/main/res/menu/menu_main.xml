@@ -9,7 +9,7 @@
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_lancer_tous"
-        android:icon="@drawable/ic_run"
+        android:icon="@drawable/ic_run_all"
         android:orderInCategory="10"
         android:title="Tous sauvegarder"
         app:showAsAction="ifRoom"/>
@@ -35,12 +35,12 @@
         android:orderInCategory="300"
         android:title="A propos..."
         app:showAsAction="never"/>
+    <!--
+     <item
+         android:id="@+id/action_database"
+         android:orderInCategory="999"
+         android:title="Base de données (debug)"
+         app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/action_database"
-        android:orderInCategory="999"
-        android:title="Base de données (debug)"
-        app:showAsAction="never"/>
-
-
+     -->
 </menu>

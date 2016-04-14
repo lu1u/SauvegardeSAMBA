@@ -16,7 +16,7 @@ public class Partages
     public static final String LISTE_RESULT = "liste" ;
 
 
-    public static void LancheRecherchePartage(Activity a, String utilisateur, String motDePasse )
+public static void LanceRecherchePartage(Activity a, String utilisateur, String motDePasse)
     {
         RecherchePartage r = new RecherchePartage(a, utilisateur, motDePasse);
         r.execute() ;

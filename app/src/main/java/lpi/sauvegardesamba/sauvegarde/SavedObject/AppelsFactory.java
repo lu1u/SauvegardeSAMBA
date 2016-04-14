@@ -44,6 +44,8 @@ protected String getMessage(MESSAGES message, Object... arguments)
 			return String.format( "Erreur lors de la sauvegarde appel dans le répertoire %s", arguments) ;
 		case INACTIF:
 			return "Sauvegarde des appels non active" ;
+		case SAUVEGARDES_SUR:
+			return String.format("%d nouveaux appels sauvegardés sur %d existants", arguments);
 
 		default:
 			return "?!?" ;
@@ -62,7 +64,7 @@ protected String getRepertoireObjets(@NonNull Context context)
 @Nullable
 protected Cursor getList(Context context)
 {
-	return Appel.getList(context);
+	return Appel.getCursor(context);
 }
 
 @Override

@@ -48,7 +48,7 @@
         android:layout_height="285dp"
         android:layout_gravity="center"
         android:indeterminate="false"
-        android:indeterminateBehavior="cycle"
+        android:indeterminateBehavior="repeat"
             android:indeterminateDrawable="@drawable/progress_activity_en_cours"
         android:max="100"
         android:progress="75"

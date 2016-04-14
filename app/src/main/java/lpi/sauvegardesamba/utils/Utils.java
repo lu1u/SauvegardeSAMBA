@@ -2,15 +2,13 @@ package lpi.sauvegardesamba.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
-import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import lpi.sauvegardesamba.R;
 
@@ -39,6 +37,7 @@ public static void addHint(final Activity a, int id, final String message)
 
 private static void displayToastAboveButton(Activity a, View v, String message)
 {
+	/*
 	int xOffset = 0;
 	int yOffset = 0;
 	Rect gvr = new Rect();
@@ -86,6 +85,8 @@ private static void displayToastAboveButton(Activity a, View v, String message)
 	toast.setGravity(Gravity.CENTER, xOffset, yOffset);
 	toast.setView(layout);
 	toast.show();
+	*/
+	Snackbar.make(v, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
 }
 
 public static void setTheme(Activity a)
@@ -130,5 +131,39 @@ public static Bitmap getBitmap(Context context, int resId)
 else
 		return context.getResources().getDrawable(resId);      */
 	return BitmapFactory.decodeResource(context.getResources(), resId);
+}
+
+public static void confirmDialog(@NonNull Activity a, @NonNull String titre, @NonNull String message, final int requestCode, final @NonNull ConfirmListener listener)
+{
+	new AlertDialog.Builder(a)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setTitle(titre)
+			.setMessage(message)
+			.setPositiveButton(a.getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener()
+			{
+				@Override
+				public void onClick(DialogInterface dialog, int which)
+				{
+					listener.onConfirmOK(requestCode);
+				}
+
+			})
+			.setNegativeButton(a.getResources().getString(android.R.string.cancel), new DialogInterface.OnClickListener()
+			{
+				@Override
+				public void onClick(DialogInterface dialog, int which)
+				{
+					listener.onConfirmCancel(requestCode);
+				}
+
+			})
+			.show();
+}
+
+public interface ConfirmListener
+{
+	void onConfirmOK(int requestCode);
+
+	void onConfirmCancel(int requestCode);
 }
 }

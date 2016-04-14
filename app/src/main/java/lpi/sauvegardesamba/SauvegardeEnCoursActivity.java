@@ -14,13 +14,16 @@ import android.widget.TextView;
 import lpi.sauvegardesamba.profils.Profil;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegarde;
 import lpi.sauvegardesamba.sauvegarde.AsyncSauvegardeManager;
+import lpi.sauvegardesamba.utils.Preferences;
+import lpi.sauvegardesamba.utils.Report;
+import lpi.sauvegardesamba.utils.Utils;
 
-public class SauvegardeEnCoursActivity extends AppCompatActivity
+public class SauvegardeEnCoursActivity extends AppCompatActivity implements Utils.ConfirmListener
 {
 public static final String PARAM_ID = "Id";
 TextView _textViewProgress;
 TextView _textviewProfil;
-TextView _textViewPartage ;
+TextView _textViewPartage;
 ProgressBar _progressbarObjets;
 final private BroadcastReceiver _receiver = new BroadcastReceiver()
 {
@@ -33,8 +36,9 @@ final private BroadcastReceiver _receiver = new BroadcastReceiver()
 			onSauvegardeInfo(intent);
 	}
 };
+int _nbTentativesAnnule;
 boolean _annule = false;
-AsyncSauvegardeManager _manager;
+
 
 private void onSauvegardeInfo(Intent intent)
 {
@@ -80,22 +84,35 @@ protected void onDestroy()
 @Override
 protected void onCreate(Bundle savedInstanceState)
 {
-	//Utils.setTheme(this);
+//	Utils.setTheme(this);
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_sauvegarde_en_cours);
 	_progressbarObjets = (ProgressBar) findViewById(R.id.progressBarObjets);
 	_textViewProgress = (TextView) findViewById(R.id.textviewMessage);
 	_textviewProfil = (TextView) findViewById(R.id.textViewProfil);
-	_textViewPartage = (TextView)findViewById(R.id.textViewPartage);
+	_textViewPartage = (TextView) findViewById(R.id.textViewPartage);
 
 	_annule = false;
+	_nbTentativesAnnule++;
+	final AsyncSauvegardeManager manager = AsyncSauvegardeManager.getInstance(this);
+
 	findViewById(R.id.buttonCancel).setOnClickListener(new View.OnClickListener()
 	{
 		@Override
 		public void onClick(View v)
 		{
-			_manager.cancel();
-			MainActivity.MessageNotification(findViewById(R.id.coordinatorlayout), "Annulation de la sauvegarde");
+			if (_nbTentativesAnnule > 5)
+			{
+				Utils.confirmDialog(SauvegardeEnCoursActivity.this, "Forcer l'annulation de la sauvegarde", "La sauvegarde semble bloquée, voulez-vous forcer l'annulation?", 0,
+						SauvegardeEnCoursActivity.this);
+			}
+			else
+			{
+				_nbTentativesAnnule++;
+				Report.getInstance(SauvegardeEnCoursActivity.this).historique("Sauvegarde annulée par application");
+				manager.cancel();
+				MainActivity.MessageNotification(findViewById(R.id.coordinatorlayout), "Annulation de la sauvegarde");
+			}
 		}
 	});
 
@@ -103,14 +120,23 @@ protected void onCreate(Bundle savedInstanceState)
 	filter.addAction(AsyncSauvegarde.ACTION_ASYNCSAVE);
 	registerReceiver(_receiver, filter);
 
-	_manager = AsyncSauvegardeManager.getInstance(this);
-	Intent i = getIntent();
+	// Déterminer si une sauvegarde est deja en cours ou s'il faut en lancer une
+	if (Preferences.getInstance(this).getSauvegardeEnCours())
 	{
-		int profilId = -1;
-		if (i != null)
-			profilId = i.getIntExtra(PARAM_ID, -1);
-
-		_manager.startSauvegarde(profilId, AsyncSauvegardeManager.TYPE_LAUNCHED.MANUEL);
+		// Une sauvegarde est deja en cours, on se sert de cette activity pour suivre son
+		// deroulement et éventuellement l'annuler
+	}
+	else
+	{
+		// Pas de sauvegarde en cours, c'est donc qu'il faut en lancer une
+		Intent i = getIntent();
+		{
+			int profilId = -1;
+			if (i != null)
+				profilId = i.getIntExtra(PARAM_ID, -1);
+			Report.getInstance(this).historique("Sauvegarde lancée par l'application");
+			manager.startSauvegarde(profilId, AsyncSauvegardeManager.TYPE_LAUNCHED.MANUEL);
+		}
 	}
 }
 
@@ -123,4 +149,20 @@ public void setProgress(@NonNull String format, int step, int Max)
 }
 
 
+@Override
+public void onConfirmOK(int requestCode)
+{
+	if (requestCode == 0)
+	{
+		// Forcer l'annulation de la sauvegarde
+		Report.getInstance(this).historique("Annulation forcée de la sauvegarde depuis l'annulation");
+		AsyncSauvegardeManager.getInstance(this).forceCancel(this);
+	}
+}
+
+@Override
+public void onConfirmCancel(int requestCode)
+{
+	// Rien a faire
+}
 }

@@ -28,7 +28,9 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:choiceMode="singleChoice"
-        android:footerDividersEnabled="true"
+        android:divider="@android:drawable/divider_horizontal_bright"
+        android:dividerHeight="2dp"
+        android:footerDividersEnabled="false"
         android:layoutMode="opticalBounds"
         android:padding="2dp"/>
 

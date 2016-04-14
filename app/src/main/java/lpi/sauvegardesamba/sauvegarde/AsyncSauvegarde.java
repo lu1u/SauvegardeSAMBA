@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.Calendar;
 
@@ -33,9 +32,8 @@ public static final String PARAM_FORMAT = "profil.Nom";
 public static final String PARAM_CURRENT = "current";
 public static final String PARAM_MAX = "max";
 public static int TOUS_LES_PROFILS = ProfilsDatabase.INVALID_ID;
+static Boolean _enCours = false;
 static private volatile Boolean _encours = false;
-ProfilsDatabase _database;
-private Context _context;
 
 public static boolean enCours(Context context)
 {
@@ -43,6 +41,24 @@ public static boolean enCours(Context context)
 	{
 		_encours = Preferences.getInstance(context).getSauvegardeEnCours();
 		return _encours;
+	}
+}
+
+
+public static void enCours(Context context, boolean encours)
+{
+	synchronized (_encours)
+	{
+		Report.getInstance(context).log(Report.NIVEAU.DEBUG, "ASYNCS: encours=" + encours);
+		/*if (encours == _encours)
+		{
+			// Bizarre, le status est deja le meme
+			Report.getInstance(context).log(Report.NIVEAU.WARNING, "Appel de enCours avec la même valeur");
+			return;
+		}     */
+		_encours = encours;
+		Preferences pref = Preferences.getInstance(context);
+		pref.setSauvegardeEnCours(encours);
 	}
 }
 
@@ -86,31 +102,25 @@ static public String formatResourceString(Context context, int resId, Object... 
 	return String.format(format, args);
 }
 
-private synchronized void enCours(boolean encours)
-{
-	if (encours == _encours)
-	{
-		// Bizarre, le status est deja le meme
-		return;
-	}
-	_encours = encours;
-
-	Preferences pref = Preferences.getInstance(_context);
-	pref.setSauvegardeEnCours(encours);
-}
 
 protected Void doInBackground(@NonNull AsyncSauvegardeManager... params)
 {
 	AsyncSauvegardeManager manager = params[0];
-	int profilId = manager._profilId;
-	_context = manager._context;
+	int profilId = AsyncSauvegardeManager._profilId;
+	Context context = manager._context;
 
-	if (enCours(_context))
+	if (enCours(context))
+	{
+		Report.getInstance(context).historique("Une sauvegarde est déjà en cours");
+		Report.getInstance(context).log(Report.NIVEAU.WARNING, "ASYNCS:Depart d'une sauvegarde alors qu'une autre est en cours");
 		return null;
+	}
 
-	signaleDebutSauvegarde();
-	executeSauvegarde(_context, profilId, manager);
-	signaleFinSauvegarde();
+	enCours(context, true);
+	signaleDebutSauvegarde(context);
+	executeSauvegarde(context, profilId, manager);
+	enCours(context, false);
+	signaleFinSauvegarde(context);
 	return null;
 }
 
@@ -118,26 +128,16 @@ private synchronized void executeSauvegarde(@NonNull Context context, int profil
 {
 	Report report = Report.getInstance(context);
 
-	if (enCours(context))
-	{
-		report.historique("Une sauvegarde est déjà en cours");
-		return;
-	}
-
-	report.historique(manager._type == AsyncSauvegardeManager.TYPE_LAUNCHED.AUTO ? "Sauvegarde automatique" : manager._type == AsyncSauvegardeManager.TYPE_LAUNCHED.MANUEL ? "Sauvegarde Manuelle" : "Sauvegarde sur détection du WIFI");
-	enCours(true);
 	try
 	{
-		report.log(Report.NIVEAU.DEBUG, "Depart sauvegarde ");
-
-		_database = ProfilsDatabase.getInstance(_context);
+		ProfilsDatabase database = ProfilsDatabase.getInstance(context);
 		if (profilId == TOUS_LES_PROFILS)
 		{
 			// Sauvegarder tous les profils
-			Cursor cursor = _database.getCursor();
+			Cursor cursor = database.getCursor();
 			if (cursor == null)
 			{
-				report.log(Report.NIVEAU.ERROR, "Impossible d'obtenir la liste des profils");
+				report.log(Report.NIVEAU.ERROR, "ASYNCS:Impossible d'obtenir la liste des profils");
 			}
 			else
 			{
@@ -146,38 +146,42 @@ private synchronized void executeSauvegarde(@NonNull Context context, int profil
 				{
 					noProfil++;
 					Profil profil = new Profil(cursor);
-					signaleProfil(profil, noProfil, cursor.getCount());
-					profil.Sauvegarde(_context, manager);
+					sauvegardeUnProfil(profil, context, manager, noProfil, cursor.getCount());
 				}
 				cursor.close();
 			}
 		}
 		else
 		{
-			Profil profil = _database.getProfil(profilId);
-			signaleProfil(profil, 1, 1);
-			profil.Sauvegarde(_context, manager);
+			Profil profil = database.getProfil(profilId);
+			sauvegardeUnProfil(profil, context, manager, 1, 1);
 		}
 
 		if (manager.isCanceled())
 		{
-			report.log(Report.NIVEAU.DEBUG, _context.getString(R.string.sauvegarde_annulee_par_utilisateur)); //$NON-NLS-1$
+			report.log(Report.NIVEAU.DEBUG, context.getString(R.string.sauvegarde_annulee_par_utilisateur)); //$NON-NLS-1$
 		}
 		else
 		{
-			report.log(Report.NIVEAU.DEBUG, _context.getString(R.string.sauvegarde_terminee_correctement)); //$NON-NLS-1$
+			report.log(Report.NIVEAU.DEBUG, context.getString(R.string.sauvegarde_terminee_correctement)); //$NON-NLS-1$
 		}
 	} catch (Exception e)
 	{
 		report.log(Report.NIVEAU.ERROR, e);
 		MainActivity.SignaleErreur("Une erreur est survenue pendant la sauvegarde, vous pouvez consulter le rapport de l'application", e);
-	} finally
-	{
-		enCours(false);
 	}
 }
 
-private void signaleProfil(@NonNull Profil profil, int current, int max)
+private void sauvegardeUnProfil(Profil profil, Context context, AsyncSauvegardeManager manager, int current, int max)
+{
+	if (profil != null)
+	{
+		signaleProfil(context, profil, current, max);
+		profil.Sauvegarde(context, manager);
+	}
+}
+
+private void signaleProfil(@NonNull Context context, @NonNull Profil profil, int current, int max)
 {
 	Intent intent = new Intent(ACTION_ASYNCSAVE);
 	intent.putExtra(COMMAND, COMMAND_PROFIL);
@@ -186,42 +190,23 @@ private void signaleProfil(@NonNull Profil profil, int current, int max)
 	intent.putExtras(b);
 	intent.putExtra(PARAM_CURRENT, current);
 	intent.putExtra(PARAM_MAX, max);
-	_context.sendBroadcast(intent);
+	context.sendBroadcast(intent);
 }
 
-private void signaleFinSauvegarde()
+private void signaleFinSauvegarde(Context context)
 {
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "ASYNCS:fin de sauvegarde");
 	Intent intent = new Intent(ACTION_ASYNCSAVE);
 	intent.putExtra(COMMAND, COMMAND_FINISHED);
-	_context.sendBroadcast(intent);
+	context.sendBroadcast(intent);
 }
 
-private void signaleDebutSauvegarde()
+private void signaleDebutSauvegarde(Context context)
 {
+	Report.getInstance(context).log(Report.NIVEAU.DEBUG, "ASYNCS:debut de sauvegarde");
 	Intent intent = new Intent(ACTION_ASYNCSAVE);
 	intent.putExtra(COMMAND, COMMAND_STARTED);
-	_context.sendBroadcast(intent);
-}
-
-/***
- * Charge une chaine de caracteres depuis les ressources et ajoute eventuellement des arguments
- * <p/>
- * aparam resId
- * aparam args
- */
-public String formatResourceString(int resId, Object... args)
-{
-	String format = _context.getResources().getString(resId);
-	return String.format(format, args);
-}
-
-public String getLocalizedTimeAndDate(@Nullable Calendar c)
-{
-	if (c == null)
-		c = Calendar.getInstance();
-
-	return android.text.format.DateFormat.getDateFormat(_context).format(c.getTime()) + ' '
-			+ android.text.format.DateFormat.getTimeFormat(_context).format(c.getTime());
+	context.sendBroadcast(intent);
 }
 
 

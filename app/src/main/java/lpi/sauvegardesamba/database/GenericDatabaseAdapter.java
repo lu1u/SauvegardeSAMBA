@@ -75,45 +75,11 @@ public void bindView(View view, Context context, Cursor cursor)
 	{
 		TextView v = (TextView) l.findViewById(i);
 		if (v != null)
-			v.setText(getValue(cursor, i));
+			v.setText(DatabaseHelper.getStringFromAnyColumn(cursor, i));
 	}
 
 }
 
-private String getValue(Cursor cursor, int i)
-{
-	try
-	{
-		return cursor.getString(i);
-	} catch (Exception e)
-	{
-		try
-		{
-			return Integer.toString(cursor.getInt(i));
-		} catch (Exception e1)
-		{
-			try
-			{
-				return Long.toString(cursor.getLong(i));
-			} catch (Exception e2)
-			{
-				try
-				{
-					return Double.toString(cursor.getDouble(i));
-				} catch (Exception e3)
-				{
-					try
-					{
-						return Float.toString(cursor.getFloat(i));
-					} catch (Exception e4)
-					{
-						return "???";
-					}
-				}
-			}
-		}
-	}
-}
 
 
 }

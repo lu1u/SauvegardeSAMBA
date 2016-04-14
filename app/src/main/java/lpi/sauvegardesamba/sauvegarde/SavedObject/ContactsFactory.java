@@ -43,6 +43,8 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 			return String.format("Erreur lors de la sauvegarde ic_contact dans le répertoire %s", arguments);
 		case INACTIF:
 			return "Sauvegarde des contacts non active" ;
+		case SAUVEGARDES_SUR:
+			return String.format("%d nouveaux contacts sauvegardés sur %d existants", arguments);
 
 		default:
 			return "?!?" ;
@@ -61,7 +63,7 @@ protected String getRepertoireObjets(Context context)
 @Nullable
 protected Cursor getList(Context context)
 {
-	return Contact.getList(context);
+	return Contact.getCursor(context);
 }
 
 @Override

@@ -43,6 +43,8 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 			return String.format("Erreur lors de la sauvegarde photo dans le répertoire %s", arguments);
 		case INACTIF:
 			return "Sauvegarde des photos non active";
+		case SAUVEGARDES_SUR:
+			return String.format("%d nouvelles photos sauvegardées sur %d existantes", arguments);
 
 		default:
 			return "?!?";

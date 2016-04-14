@@ -23,16 +23,6 @@ import lpi.sauvegardesamba.utils.Report;
  */
 public class Photo extends SavedObject
 {
-private final static String[] COLONNES =
-		{
-				MediaStore.Images.ImageColumns.DATA,
-				MediaStore.Images.ImageColumns.DISPLAY_NAME,
-				MediaStore.Images.ImageColumns.DESCRIPTION,
-				MediaStore.Images.ImageColumns.DATE_MODIFIED,
-				MediaStore.Images.ImageColumns.DATE_TAKEN,
-				MediaStore.Images.ImageColumns.DATE_ADDED,
-				MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME
-		};
 static private int _colonneDisplayName;
 static private int _colonneDateModified;
 static private int _colonneDateTaken;
@@ -57,7 +47,7 @@ public Photo(Cursor cursor, Context context)
 public static Cursor getList(Context context)
 {
 	Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-			COLONNES,
+			null,
 			null,
 			null,
 			null);

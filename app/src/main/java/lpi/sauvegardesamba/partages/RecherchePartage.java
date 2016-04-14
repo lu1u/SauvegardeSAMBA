@@ -45,22 +45,31 @@ public RecherchePartage(Activity a, String Utilisateur, String MotDePasse)
 @Override
 protected Void doInBackground(Void... params)
 {
+	Report report = Report.getInstance(_activity);
 	Intent intent = new Intent(Partages.ACTION_RESULT_RECHERCHE_PARTAGE);
 	try
 	{
+		report.log(Report.NIVEAU.DEBUG, "Recherche des domaines du réseau");
 		NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, _utilisateur, _motDePasse);
 		SmbFile domaines = new SmbFile("smb://", auth);
 		SmbFile[] domains = domaines.listFiles();
 		ArrayList<String> liste = new ArrayList<>();
 
 		for (SmbFile domaine : domains)
+		{
+			report.log(Report.NIVEAU.DEBUG, "Domaine : " + domaine.getName());
 			scanDomain(domaine, liste);
+		}
 
 		intent.putStringArrayListExtra(Partages.LISTE_RESULT, liste);
 		intent.putExtra(Partages.RESULT_RECHERCHE, Partages.RESULT_OK);
 	} catch (Exception e)
 	{
 		intent.putExtra(Partages.RESULT_RECHERCHE, Partages.RESULT_ERREUR);
+		intent.putExtra(Partages.RESULT_MESSAGE, e.getMessage());
+
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la recherche des domaines réseau");
+		report.log(Report.NIVEAU.ERROR, e.getLocalizedMessage());
 	} finally
 	{
 		_activity.sendBroadcast(intent);
@@ -69,36 +78,50 @@ protected Void doInBackground(Void... params)
 	return null;
 }
 
+/***
+ * Parcourir les ordinateurs du domaine
+ *
+ * @param domaine
+ * @param liste
+ */
 private void scanDomain(SmbFile domaine, ArrayList<String> liste)
 {
+	Report report = Report.getInstance(_activity);
 	try
 	{
 		// Recherche des ordinateurs dans chaque domaine
 		SmbFile[] ordinateurs = domaine.listFiles();
 		for (SmbFile ordinateur : ordinateurs)
+		{
+			report.log(Report.NIVEAU.DEBUG, "Ordinateur " + ordinateur.getName());
+
 			scanOrdinateur(ordinateur, liste);
+		}
+
 	} catch (SmbException e)
 	{
-		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, "Scan de domaine: " + domaine.getPath());
-		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, e);
+		report.log(Report.NIVEAU.ERROR, "Erreur lors du parcours du domaine: " + domaine.getPath());
+		report.log(Report.NIVEAU.ERROR, e);
 	}
 }
 
 private void scanOrdinateur(SmbFile ordinateur, ArrayList<String> liste)
 {
+	Report report = Report.getInstance(_activity);
 	try
 	{
 		SmbFile[] partages = ordinateur.listFiles();
 
 		for (SmbFile partage : partages)
 		{
+			report.log(Report.NIVEAU.DEBUG, "Partage " + partage.getName());
 			String name = partage.getPath();
 			ajouteName(liste, name);
 		}
 	} catch (SmbException e)
 	{
-		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, "Scan d'ordinateur: " + ordinateur.getPath());
-		Report.getInstance(_activity).log(Report.NIVEAU.ERROR, e);
+		report.log(Report.NIVEAU.ERROR, "Scan d'ordinateur: " + ordinateur.getPath());
+		report.log(Report.NIVEAU.ERROR, e);
 	}
 }
 
@@ -116,6 +139,7 @@ private void ajouteName(ArrayList<String> liste, String name)
 	if (!name.endsWith("$"))   // Partage administratif
 	{
 		if (name.startsWith("smb://"))
+			// Supprimer le prefixe "smb"
 			name = name.substring("smb://".length());
 
 		liste.add(name);

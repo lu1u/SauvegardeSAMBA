@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import java.util.Calendar;
 
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import lpi.sauvegardesamba.database.DatabaseHelper;
 import lpi.sauvegardesamba.database.ProfilsDatabase;
@@ -213,7 +214,7 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 	{
 		if (!IsWifiConnected(context))
 		{
-			report.historique("Profil " + Nom + ": non connecté au WIFI, annulé");
+			report.historique("Profil '" + Nom + "': non connecté au WIFI, annulé");
 			//dlg.notification(context.getString(R.string.non_connecte_wifi));
 			return;
 		}
@@ -221,26 +222,18 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 
 	if ((dlg._type == AsyncSauvegardeManager.TYPE_LAUNCHED.AUTO) && (IntegrationSauvegardeAuto == ProfilsDatabase.S_JAMAIS))
 	{
-		report.historique("Profil " + Nom + " non actif lors des sauvegardes automatiques");
-		//dlg.notification(context.getString(R.string.desactive_sauvegarde_auto));
+		report.historique("Profil '" + Nom + "' non actif lors des sauvegardes automatiques");
 		return;
 	}
+
+	report.historique("Démarrage du profil '" + Nom + "', chemin de la sauvegarde:" + Partage);
+
 	report.log(Report.NIVEAU.DEBUG, "Chemin de la sauvegarde:" + Partage);
 	String path = SavedObject.Combine("smb://" + Partage, Preferences.getInstance(context).getPrefRepertoireSauvegarde());
 	NtlmPasswordAuthentication authentification = new NtlmPasswordAuthentication(null, Utilisateur, MotDePasse);
 
-	try
-	{
-		SmbFile sFile = new SmbFile(path, authentification);
-		if (!sFile.exists())
-			sFile.mkdir();
-	} catch (Exception e)
-	{
-		report.historique("Profil " + Nom + " erreur lors de la création du répertoire, non accessible?");
-		report.log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire (repertoire non accessible?)" + path);
-		report.log(Report.NIVEAU.ERROR, e);
+	if (partageNonAccessible(path, authentification, report))
 		return;
-	}
 
 	boolean erreur = false;
 	if (!dlg.isCanceled())
@@ -277,7 +270,42 @@ public void Sauvegarde(Context context, AsyncSauvegardeManager dlg)
 		report.historique("Profil " + Nom + " annulé par l'utilisateur");
 	}
 	else
-		report.historique("Profil " + Nom + (erreur ? " Erreur détectée" : " Sauvegarde terminée correctement"));
+		report.historique("Profil '" + Nom + (erreur ? "': Erreur détectée" : "': Sauvegarde terminée correctement"));
+}
+
+private boolean partageNonAccessible(String path, NtlmPasswordAuthentication authentification, Report report)
+{
+	try
+	{
+		SmbFile sFile = new SmbFile(path, authentification);
+		if (!sFile.exists())
+		{
+			try
+			{
+				sFile.mkdir();
+			} catch (SmbException e)
+			{
+				report.log(Report.NIVEAU.ERROR, "Impossible de creer le repertoire pour la sauvegarde:" + path);
+				report.historique("Impossible de creer le repertoire pour la sauvegarde:" + path);
+				return true;
+			}
+		}
+
+		if (!sFile.canWrite())
+		{
+			report.log(Report.NIVEAU.ERROR, "Impossible d'ecrire dans le repertoire de sauvegarde:" + path);
+			report.historique("Impossible d'ecrire dans le repertoire de sauvegarde:" + path);
+			return true;
+		}
+	} catch (Exception e)
+	{
+		report.historique("Profil " + Nom + " erreur lors de la création du répertoire, non accessible?");
+		report.log(Report.NIVEAU.ERROR, "Erreur lors de la creation du repertoire (repertoire non accessible?)" + path);
+		report.log(Report.NIVEAU.ERROR, e);
+		return true;
+	}
+
+	return false;
 }
 
 private boolean Nok(SauvegardeReturnCode sauvegardeReturnCode)
@@ -339,7 +367,7 @@ public void toBundle(@NonNull Bundle bundle)
 	bundle.putBoolean(DatabaseHelper.COLUMN_MESSAGES, Messages);
 	bundle.putBoolean(DatabaseHelper.COLUMN_PHOTOS, Photos);
 	bundle.putBoolean(DatabaseHelper.COLUMN_VIDEOS, Videos);
-	bundle.putLong(DatabaseHelper.COLUMN_DERNIERE_SAUVEGARDE, DerniereSauvegarde);
+	bundle.putInt(DatabaseHelper.COLUMN_DERNIERE_SAUVEGARDE, DerniereSauvegarde);
 }
 
 public String getDerniereSauvegarde(@NonNull Context context)

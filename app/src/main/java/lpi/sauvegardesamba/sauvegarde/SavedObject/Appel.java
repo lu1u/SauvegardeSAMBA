@@ -25,18 +25,32 @@ import lpi.sauvegardesamba.utils.Report;
 public class Appel extends SavedObject
 {
 static final private String COLONNES[] = new String[]
-		{CallLog.Calls.NUMBER, CallLog.Calls.DATE, CallLog.Calls.DURATION, CallLog.Calls.TYPE};
+		{
+				CallLog.Calls.NUMBER,
+				CallLog.Calls.DATE,
+				CallLog.Calls.DURATION,
+				CallLog.Calls.TYPE,
+				CallLog.Calls.GEOCODED_LOCATION,
+				CallLog.Calls.IS_READ,
+		};
+
 
 private static int _colNumber;
 private static int _colDate;
 private static int _colDuration;
 private static int _colType;
+private static int _colGeocodedLocation;
+private static int _colIsRead;
+
 
 public final String _number;
 public final long _date;
 public final long _duration;
 public final int _type;
 public final String _address;
+public final String _geoCodedLocation;
+public final int _isRead;
+
 
 public Appel(@NonNull Cursor cursor, @NonNull Context context)
 {
@@ -45,10 +59,13 @@ public Appel(@NonNull Cursor cursor, @NonNull Context context)
 	_number = cursor.getString(_colNumber);
 	_type = cursor.getInt(_colType);
 	_address = getContact(context, _number);
+
+	_geoCodedLocation = cursor.getString(_colGeocodedLocation);
+	_isRead = cursor.getInt(_colIsRead);
 }
 
 @Nullable
-public static Cursor getList(@NonNull Context context)
+public static Cursor getCursor(@NonNull Context context)
 {
 	if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED)
 	{
@@ -62,6 +79,8 @@ public static Cursor getList(@NonNull Context context)
 			_colDate = cursor.getColumnIndexOrThrow(CallLog.Calls.DATE);
 			_colDuration = cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION);
 			_colType = cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE);
+			_colGeocodedLocation = cursor.getColumnIndexOrThrow(CallLog.Calls.GEOCODED_LOCATION);
+			_colIsRead = cursor.getColumnIndexOrThrow(CallLog.Calls.IS_READ);
 		} catch (Exception e)
 		{
 			return null;
@@ -71,7 +90,9 @@ public static Cursor getList(@NonNull Context context)
 }
 
 @Override
-public String Nom(@NonNull Context context)
+public
+@NonNull
+String Nom(@NonNull Context context)
 {
 	String res = "[" + sqliteDateHourToString(context, _date) + "]";
 
@@ -113,8 +134,11 @@ public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Contex
 	// Path de cet appel
 	String path = smbRoot.getCanonicalPath();
 	String appelPath = SavedObject.Combine(path, getFileName(context));
-	Log.d("SAVE", "Message path:" + path);
 	SmbFile appelSmbFile = new SmbFile(appelPath, authentification);
+	if (appelSmbFile.exists())
+		return SauvegardeReturnCode.EXISTE_DEJA;
+	Log.d("SAVE", "Message path:" + appelPath);
+
 	SmbFileOutputStream sops = null;
 
 	try
@@ -134,6 +158,18 @@ public SauvegardeReturnCode sauvegarde(@NonNull SmbFile smbRoot, @NonNull Contex
 		}
 
 		sops.write(("\nDurée: " + sqliteDurationToString(context, _duration)).getBytes());
+		sops.write(BEGIN_DATA.getBytes());
+		sops.write(("\nADDRESS " + _address).getBytes());
+		sops.write(("\nTYPE " + _type).getBytes());
+		sops.write(("\nNUMBER " + _number).getBytes());
+		sops.write(("\nDATE " + _date).getBytes());
+		sops.write(("\nDURATION " + _duration).getBytes());
+		sops.write(("\nTYPE " + _type).getBytes());
+		sops.write(("\nADDRESS " + _address).getBytes());
+		sops.write(("\nGEOLOCATION " + _geoCodedLocation).getBytes());
+		sops.write(("\nIS_READ " + _isRead).getBytes());
+		sops.write(ENDDATA.getBytes());
+
 	} catch (IOException e)
 	{
 		Report report = Report.getInstance(context);

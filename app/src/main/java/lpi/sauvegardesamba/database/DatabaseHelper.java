@@ -3,7 +3,9 @@ package lpi.sauvegardesamba.database;
 /**
  * Utilitaire de gestion de la base de donnees
  */
+
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -30,7 +32,7 @@ public static final String COLUMN_MESSAGES = "MESSAGES";
 public static final String COLUMN_APPELS = "APPELS";
 public static final String COLUMN_PHOTOS = "PHOTOS";
 public static final String COLUMN_VIDEOS = "VIDEOS";
-public static final String COLUMN_DERNIERE_SAUVEGARDE = "DERNIERE" ;
+public static final String COLUMN_DERNIERE_SAUVEGARDE = "DERNIERE";
 public static final String COLUMN_INTEGRATION_SAUVEGARDE_AUTO = "SAUVEGARDEAUTO";
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Table historique
@@ -110,6 +112,60 @@ static public Calendar SQLiteDateToCalendar(int date)
 	Calendar cal = Calendar.getInstance();
 	cal.setTimeInMillis((long) date * 1000L);
 	return cal;
+}
+
+@NonNull
+public static String getStringFromAnyColumn(@NonNull Cursor cursor, int colonne)
+{
+	Object o = getObjectFromAnyColumn(cursor, colonne);
+	if (o != null)
+		return o.toString();
+	else
+		return "Impossible de lire la colonne " + cursor.getColumnName(colonne);
+}
+
+@Nullable
+public static Object getObjectFromAnyColumn(@NonNull Cursor cursor, int colonne)
+{
+	try
+	{
+		return cursor.getInt(colonne);
+	} catch (Exception e)
+	{
+		try
+		{
+			return cursor.getShort(colonne);
+		} catch (Exception e1)
+		{
+			try
+			{
+				return cursor.getLong(colonne);
+			} catch (Exception e2)
+			{
+				try
+				{
+					return cursor.getDouble(colonne);
+				} catch (Exception e3)
+				{
+					try
+					{
+						return cursor.getFloat(colonne);
+					} catch (Exception e4)
+					{
+						try
+						{
+							return cursor.getString(colonne);
+						} catch (Exception e5)
+						{
+							Log.e("Dabase", "impossible de lire la colonne " + colonne);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return null;
 }
 
 @Override

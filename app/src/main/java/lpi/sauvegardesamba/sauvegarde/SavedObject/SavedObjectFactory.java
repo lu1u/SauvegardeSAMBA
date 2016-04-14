@@ -36,6 +36,7 @@ protected abstract Cursor getList(Context context);
 @NonNull
 protected abstract SavedObject creerObjet(Cursor cursor, Context context);
 
+
 public SauvegardeReturnCode sauvegarde(@NonNull Context context, @NonNull Profil profil, @NonNull String rootPath, NtlmPasswordAuthentication authentification, @NonNull AsyncSauvegardeManager dlg)
 {
 	Report report = Report.getInstance(context);
@@ -67,6 +68,7 @@ public SauvegardeReturnCode sauvegarde(@NonNull Context context, @NonNull Profil
 		{
 			int max = cursor.getCount();
 			int current = 0;
+			int nbSauvegardes = 0;
 			while (cursor.moveToNext() && !dlg.isCanceled())
 			{
 				current++;
@@ -79,9 +81,11 @@ public SauvegardeReturnCode sauvegarde(@NonNull Context context, @NonNull Profil
 					if (objectRoot != null)
 						switch (objet.sauvegarde(objectRoot, context, authentification))
 						{
+							case OK:
+								nbSauvegardes++;
+								break;
 							case ERREUR_COPIE:
 							case EXISTE_DEJA:
-							case OK:
 							case IMPOSSIBLE_CREER_REPERTOIRE:
 							case IMPOSSIBLE_SUPPRIMER_TEMP:
 							case INACTIF:
@@ -91,6 +95,7 @@ public SauvegardeReturnCode sauvegarde(@NonNull Context context, @NonNull Profil
 				}
 			}
 			cursor.close();
+			report.historique(getMessage(MESSAGES.SAUVEGARDES_SUR, nbSauvegardes, max));
 		}
 		else
 			report.log(Report.NIVEAU.ERROR, "Impossible de recuperer la liste");
@@ -101,7 +106,6 @@ public SauvegardeReturnCode sauvegarde(@NonNull Context context, @NonNull Profil
 		report.log(Report.NIVEAU.DEBUG, e);
 	}
 
-	report.log(Report.NIVEAU.DEBUG, "Tous les objets traités");
 	return SauvegardeReturnCode.OK;
 }
 
@@ -146,7 +150,7 @@ private SmbFile getPath(@NonNull String rootPath, @NonNull SavedObject objet, @N
 
 protected enum MESSAGES
 {
-	LOG_SAUVEGARDE, IMPOSSIBLE_CREER_REPERTOIRE, PROGRESS, ERREUR_LORS_DE_LA_SAUVEGARDE, INACTIF
+	LOG_SAUVEGARDE, IMPOSSIBLE_CREER_REPERTOIRE, PROGRESS, ERREUR_LORS_DE_LA_SAUVEGARDE, INACTIF, SAUVEGARDES_SUR
 }
 
 }

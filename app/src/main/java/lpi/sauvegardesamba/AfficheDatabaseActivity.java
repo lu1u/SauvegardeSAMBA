@@ -78,18 +78,6 @@ private void getTableNames()
 	{
 		_tables[i] = c.getString(c.getColumnIndex("name"));
 		i++;
-		/*SqliteTable table = new SqliteTable();
-		table._tableName = c.getString(c.getColumnIndex("name"));
-		table._colonnes = new ArrayList<>();
-		String[] temp = new String[c.getColumnCount()];
-		Cursor c1 = database.rawQuery("SELECT * FROM " + table._tableName, null);
-		c1.moveToFirst();
-		String[] COLUMNS = c1.getColumnNames();
-		c1.close();
-
-		for (int j = 0; j < COLUMNS.length; j++)
-			table._colonnes.add(COLUMNS[j]);
-		_tables.add(table);           */
 	}
 }
 

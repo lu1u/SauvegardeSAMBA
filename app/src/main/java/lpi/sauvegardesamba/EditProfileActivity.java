@@ -317,7 +317,7 @@ public void onClickChoisirPartage(View v)
 	_profil.Utilisateur = eUtilisateur.getText().toString();
 	_profil.MotDePasse = eMotDePasse.getText().toString();
 
-	Partages.LancheRecherchePartage(this, _profil.Utilisateur, _profil.MotDePasse);
+	Partages.LanceRecherchePartage(this, _profil.Utilisateur, _profil.MotDePasse);
 }
 
 

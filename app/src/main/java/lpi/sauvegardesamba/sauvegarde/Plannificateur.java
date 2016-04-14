@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -17,6 +16,7 @@ import java.util.Calendar;
 import lpi.sauvegardesamba.R;
 import lpi.sauvegardesamba.utils.AlarmReceiver;
 import lpi.sauvegardesamba.utils.Preferences;
+import lpi.sauvegardesamba.utils.Report;
 
 /**
  * @author lucien
@@ -25,28 +25,20 @@ public class Plannificateur
 {
 public final static String COMMANDE_SAVE_ALARM = "lpi.Sauvegarde.Alarme"; //$NON-NLS-1$
 private final static String TAG = "Sauvegarde"; //$NON-NLS-1$
-private Context _context;
 
-public Plannificateur(Context context)
-{
-	_context = context;
-}
 
 /***
  * Retourne l'heure de la prochaine sauvegarde a partir de maintenant
  *
- * @param c
+ * @param context
  * @return un Calendar ou null si sauvegarde desactivee
  */
 @Nullable
-static public Calendar getProchaineSauvegarde(Context c)
+static public Calendar getProchaineSauvegarde(Context context)
 {
-	Preferences pref = Preferences.getInstance(c);
-	boolean bActivee = pref.getSauvegarderAuto();
+	Preferences pref = Preferences.getInstance(context);
 
-	if (!bActivee)
-		return null;
-	else
+	if (pref.getSauvegarderAuto())
 	{
 		int heure = pref.getSauvegardeAutoHeure();
 		int minute = pref.getSauvegardeAutoMinute();
@@ -55,6 +47,8 @@ static public Calendar getProchaineSauvegarde(Context c)
 		setProchaineHeure(calendar, heure, minute);
 		return calendar;
 	}
+	else
+		return null;
 }
 
 /***
@@ -79,21 +73,21 @@ static public void setProchaineHeure(Calendar calendar, int heure, int minute)
  *
  * @param calendar
  */
-public void setAlarm(Calendar calendar)
+static public void setAlarm(Context context, Calendar calendar)
 {
-	AlarmManager alarmManager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
-	Intent intent = new Intent(_context, AlarmReceiver.class);
+	AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+	Intent intent = new Intent(context, AlarmReceiver.class);
 	intent.setAction(COMMANDE_SAVE_ALARM);
 
 	// Supprimer l'ancienne alarme
-	PendingIntent pendingIntentCancel = PendingIntent.getBroadcast(_context, 0, intent, 0);
+	PendingIntent pendingIntentCancel = PendingIntent.getBroadcast(context, 0, intent, 0);
 	alarmManager.cancel(pendingIntentCancel);
 
 	if (calendar != null)
 	{
-		Log.d(TAG, "Set alarme " + calendar.get(Calendar.YEAR) + '/' + (calendar.get(Calendar.MONTH) + 1) + '/' + calendar.get(Calendar.DAY_OF_MONTH) //$NON-NLS-1$
+		Report.getInstance(context).log(Report.NIVEAU.DEBUG, "Set alarme " + calendar.get(Calendar.YEAR) + '/' + (calendar.get(Calendar.MONTH) + 1) + '/' + calendar.get(Calendar.DAY_OF_MONTH) //$NON-NLS-1$
 				+ ' ' + calendar.get(Calendar.HOUR_OF_DAY) + ':' + calendar.get(Calendar.MINUTE) + ':' + calendar.get(Calendar.SECOND));
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(_context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 	}
 }
@@ -103,25 +97,19 @@ public void setAlarm(Calendar calendar)
  *
  * @param
  */
-public void plannifieSauvegarde()
+static public void plannifieSauvegarde(Context context)
 {
-	Calendar calendar = getProchaineSauvegarde(_context);
-	setAlarm(calendar);
+	Calendar calendar = getProchaineSauvegarde(context);
+	setAlarm(context, calendar);
 
 	if (calendar == null)
 	{
 		// Pas de sauvegarde automatique
-		Toast t = Toast.makeText(_context, AsyncSauvegarde.formatResourceString(_context, R.string.sauvegarde_auto_desactivee),
-				Toast.LENGTH_SHORT);
-		t.show();
-
+		Toast.makeText(context, AsyncSauvegarde.formatResourceString(context, R.string.sauvegarde_auto_desactivee), Toast.LENGTH_SHORT).show();
 	}
 	else
 	{
-		Toast t;
-		t = Toast.makeText(_context,
-				getTextProchaineSauvegarde(calendar), Toast.LENGTH_SHORT);
-		t.show();
+		Toast.makeText(context, getTextProchaineSauvegarde(context, calendar), Toast.LENGTH_SHORT).show();
 	}
 }
 
@@ -131,12 +119,12 @@ public void plannifieSauvegarde()
  * @return
  */
 @NonNull
-public String getTextProchaineSauvegarde(Calendar calendar)
+static public String getTextProchaineSauvegarde(Context context, Calendar calendar)
 {
 	if (calendar == null)
-		calendar = getProchaineSauvegarde(_context);
-	return AsyncSauvegarde.formatResourceString(_context, R.string.sauvegarde_auto_programmee,
-			AsyncSauvegarde.getLocalizedTimeAndDate(_context, calendar));
+		calendar = getProchaineSauvegarde(context);
+	return AsyncSauvegarde.formatResourceString(context, R.string.sauvegarde_auto_programmee,
+			AsyncSauvegarde.getLocalizedTimeAndDate(context, calendar));
 }
 
 

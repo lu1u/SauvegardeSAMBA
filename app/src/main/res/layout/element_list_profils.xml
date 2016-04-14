@@ -2,19 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="@dimen/hauteur_liste_item"
-              android:background="@drawable/bk_element_liste"
+              android:background="?attr/selectableItemBackground"
               android:minHeight="@dimen/hauteur_liste_item"
               android:orientation="vertical"
               android:padding="2dp">
 
+    <!--android:background="@drawable/bk_element_liste"-->
 
 
-        <TextView
-            android:id="@+id/textViewNom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge"/>
+    <TextView
+        android:id="@+id/textViewNom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         <TextView
             android:id="@+id/textViewPartage"
@@ -40,6 +41,7 @@
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
+                android:elevation="4dp"
                 android:maxHeight="@dimen/taille_image_liste_profils"
                 android:maxWidth="@dimen/taille_image_liste_profils"
                 android:minHeight="@dimen/taille_image_liste_profils"
@@ -52,8 +54,7 @@
                 android:layout_height="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
                 android:minHeight="@dimen/taille_image_liste_profils"
-                android:minWidth="@dimen/taille_image_liste_profils"
-                android:tint="?attr/tintIcones"/>
+                android:minWidth="@dimen/taille_image_liste_profils"/>
 
 
             <ImageView
@@ -61,6 +62,7 @@
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
+                android:elevation="4dp"
                 android:maxHeight="@dimen/taille_image_liste_profils"
                 android:maxWidth="@dimen/taille_image_liste_profils"
                 android:minHeight="@dimen/taille_image_liste_profils"
@@ -73,6 +75,7 @@
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
+                android:elevation="4dp"
                 android:minHeight="@dimen/taille_image_liste_profils"
                 android:minWidth="@dimen/taille_image_liste_profils"
                 android:src="@drawable/ic_phone"
@@ -83,16 +86,21 @@
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
+                android:backgroundTint="?attr/tintIcones"
+                android:elevation="4dp"
                 android:minHeight="@dimen/taille_image_liste_profils"
+
                 android:minWidth="@dimen/taille_image_liste_profils"
                 android:src="@drawable/ic_message"
-                android:tint="?attr/tintIcones"/>
+                android:tint="?attr/tintIcones"
+                />
 
             <ImageView
                 android:id="@+id/imagePhotos"
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
+                android:elevation="4dp"
                 android:minHeight="@dimen/taille_image_liste_profils"
                 android:minWidth="@dimen/taille_image_liste_profils"
                 android:src="@drawable/ic_image"
@@ -104,10 +112,10 @@
                 android:layout_width="@dimen/taille_image_liste_profils"
                 android:layout_height="@dimen/taille_image_liste_profils"
                 android:layout_weight="0.25"
+                android:elevation="4dp"
                 android:minHeight="@dimen/taille_image_liste_profils"
                 android:minWidth="@dimen/taille_image_liste_profils"
                 android:src="@drawable/ic_video"
                 android:tint="?attr/tintIcones"/>
         </LinearLayout>
-
     </LinearLayout>

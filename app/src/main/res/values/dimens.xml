@@ -14,13 +14,14 @@
     <dimen name="hauteur_liste_item">110dp</dimen>
     <dimen name="padding_bouton">8dp</dimen>
     <dimen name="marge_bouton">12dp</dimen>
-    <dimen name="taille_bouton_liste_profil_petit">5dp</dimen>
+    <dimen name="taille_bouton_liste_profil_petit">36dp</dimen>
     <dimen name="taille_image_liste_profils">24dp</dimen>
     <dimen name="largeur_label_preferences">80dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
-    <dimen name="tabBarHeight">48dp</dimen>
+    <dimen name="tabBarHeight">40dp</dimen>
 
 
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="taille_icone_widget">64dp</dimen>
+    <dimen name="elevation_groupe">8dp</dimen>
 </resources>

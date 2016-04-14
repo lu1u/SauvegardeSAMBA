@@ -44,6 +44,8 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 			return String.format( "Erreur lors de la sauvegarde vidéo dans le répertoire %s", arguments) ;
 		case INACTIF:
 			return "Sauvegarde des vidéo non active" ;
+		case SAUVEGARDES_SUR:
+			return String.format("%d nouvelles vidéos sauvegardées sur %d existantes", arguments);
 
 		default:
 			return "?!?" ;
@@ -51,7 +53,9 @@ protected String getMessage(SavedObjectFactory.MESSAGES message, Object... argum
 }
 
 @Override
-protected String getRepertoireObjets(@NonNull Context context)
+protected
+@NonNull
+String getRepertoireObjets(@NonNull Context context)
 {
 	Preferences pref = Preferences.getInstance(context);
 	return pref.getPrefRepertoireVideos();
